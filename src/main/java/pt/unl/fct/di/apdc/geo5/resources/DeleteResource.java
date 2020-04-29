@@ -1,5 +1,7 @@
 package pt.unl.fct.di.apdc.geo5.resources;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -12,8 +14,13 @@ import javax.ws.rs.core.Response.Status;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
+import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.Transaction;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.gson.Gson;
 
 import pt.unl.fct.di.apdc.geo5.util.RegisterData;
 
@@ -26,6 +33,8 @@ public class DeleteResource {
 	 */
 	private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+	private final Gson g = new Gson();
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -46,6 +55,68 @@ public class DeleteResource {
 			LOG.info("User deleted: " + data.username);
 			txn.commit();
 			return Response.ok("{}").build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}
+	}
+	
+	@POST
+	@Path("/inactiveUsers")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response deleteInactiveUsers(RegisterData data) {
+		LOG.fine("Attempt to delete inactive users");
+		Transaction txn = datastore.newTransaction();
+		try {
+			Query<Entity> query = Query.newEntityQueryBuilder()
+					.setKind("User")
+					.setFilter(PropertyFilter.eq("active_account", false))
+					.build();
+			QueryResults<Entity> logs = datastore.run(query);
+			List<Entity> inactiveUsersList = new ArrayList<Entity>();
+			logs.forEachRemaining(inactiveUsersLog -> {
+				inactiveUsersList.add(inactiveUsersLog);
+				txn.delete(inactiveUsersLog.getKey());
+			});
+			LOG.info("Inactive users deleted");
+			txn.commit();
+			return Response.ok(g.toJson(inactiveUsersList)).build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}
+	}
+	
+	@POST
+	@Path("/invalidTokens")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response deleteInvalidTokens(RegisterData data) {
+		LOG.fine("Attempt to delete invalid tokens");
+		Transaction txn = datastore.newTransaction();
+		try {
+			Query<Entity> query = Query.newEntityQueryBuilder()
+					.setKind("Token")
+					.setFilter(PropertyFilter.eq("validity", false))
+					.build();
+			QueryResults<Entity> logs = datastore.run(query);
+			List<Entity> invalidTokensList = new ArrayList<Entity>();
+			logs.forEachRemaining(invalidTokensLog -> {
+				invalidTokensList.add(invalidTokensLog);
+				txn.delete(invalidTokensLog.getKey());
+			});
+			LOG.info("Invalid tokens deleted");
+			txn.commit();
+			return Response.ok(g.toJson(invalidTokensList)).build();
 		} catch (Exception e) {
 			txn.rollback();
 			LOG.severe(e.getMessage());

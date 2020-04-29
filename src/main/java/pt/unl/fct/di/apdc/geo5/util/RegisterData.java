@@ -11,6 +11,7 @@ public class RegisterData {
 	public String place;
 	public String country;
 	public String role;
+	public boolean isActive;
 	
 	public RegisterData() {
 		
@@ -27,6 +28,7 @@ public class RegisterData {
 			this.street = street;
 			this.place = place;
 			this.country = country;
+			this.isActive = true;
 	}
 	
 	private boolean validField(String value) {

@@ -52,6 +52,9 @@ public class UpdateResource {
 						.set("user_email", data.email)
 						.set("user_role", data.role)
 						.set("user_creation_time", Timestamp.now())
+						.set("user_street", data.street)
+						.set("user_place", data.place)
+						.set("user_country", data.country)
 						.build();
 				txn.update(user);
 				LOG.info("User information changed: " + data.username);

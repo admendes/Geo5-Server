@@ -74,7 +74,7 @@ public class LoginResource {
 				LOG.warning("Failed login attempt for username: " + data.username);
 				return Response.status(Status.FORBIDDEN).build();
 			}
-			
+
 			//We get the user stats from the storage
 			Entity stats = txn.get(ctrsKey);
 			if(stats == null) {
@@ -113,14 +113,16 @@ public class LoginResource {
 				String role = (String) user.getString("user_role");
 				AuthToken token = new AuthToken(data.username, role);
 
-				Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
-
+				Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(token.tokenID);
+				
+				/**
 				if(txn.get(tokenKey) != null) {
 					//User already logged in
 					LOG.warning("User " + data.username + " already logged in.");
 					return Response.status(Status.FORBIDDEN).build();
 				}
-				
+				**/
+			
 				//Return token
 				Entity userToken = Entity.newBuilder(tokenKey)
 						.set("user_name", data.username)
@@ -128,6 +130,7 @@ public class LoginResource {
 						.set("user_role", token.role)
 						.set("creation_data",token.creationData)
 						.set("expiration_data",token.expirationData)
+						.set("validity", token.isValid)
 						.build();
 				
 				//Batch operation

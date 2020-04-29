@@ -58,6 +58,10 @@ public class RegisterResource {
 						.set("user_email", data.email)
 						.set("user_role", "User")
 						.set("user_creation_time", Timestamp.now())
+						.set("user_street", "")
+						.set("user_place", "")
+						.set("user_country", "")
+						.set("active_account", true)
 						.build();
 				txn.add(user);
 				LOG.info("User registered " + data.username);
