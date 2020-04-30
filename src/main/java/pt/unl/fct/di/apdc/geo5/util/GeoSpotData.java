@@ -4,18 +4,20 @@ public class GeoSpotData {
 	
 	public Pointer location;
 	public String username;
-	public String name;
+	public String geoSpotName;
 	public String description;
+	public boolean isActive;
 	
 	public GeoSpotData() {
 		
 	}
 	
-	public GeoSpotData(Pointer location, String username, String name, String description) {
+	public GeoSpotData(Pointer location, String username, String geoSpotName, String description, boolean isActive) {
 		this.location = location;
 		this.username = username;
-		this.name = name;
+		this.geoSpotName = geoSpotName;
 		this.description = description;
+		this.isActive = isActive;
 	}
 	
 	private boolean validField(String value) {
@@ -24,6 +26,6 @@ public class GeoSpotData {
 	
 	public boolean validRegistration() {
 		return validField(username) &&
-			   validField(name);	
+			   validField(geoSpotName);	
 	}
 }

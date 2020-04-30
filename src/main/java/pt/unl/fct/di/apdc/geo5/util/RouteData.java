@@ -4,7 +4,7 @@ public class RouteData {
 
 	public Pointer start;
 	public Pointer end;
-	public String name;
+	public String routeName;
 	public String username;
 	public String description;
 	public boolean isActive;
@@ -13,13 +13,13 @@ public class RouteData {
 		
 	}
 	
-	public RouteData(Pointer start, Pointer end, String name, String username, String description) {
+	public RouteData(Pointer start, Pointer end, String name, String username, String description, boolean isActive) {
 		this.start = start;
 		this.end = end;
-		this.name = name;
+		this.routeName = name;
 		this.username = username;
 		this.description = description;
-		this.isActive = true;
+		this.isActive = isActive;
 	}
 	
 	private boolean validField(String value) {
@@ -28,6 +28,6 @@ public class RouteData {
 	
 	public boolean validRegistration() {
 		return validField(username) &&
-			   validField(name);	
+			   validField(routeName);	
 	}
 }
