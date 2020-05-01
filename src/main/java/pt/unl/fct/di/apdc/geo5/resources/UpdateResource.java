@@ -20,6 +20,7 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
 import pt.unl.fct.di.apdc.geo5.util.RegisterData;
+import pt.unl.fct.di.apdc.geo5.util.UpdateUserData;
 
 @Path("/update")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -33,7 +34,7 @@ public class UpdateResource {
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doUpdate(RegisterData data) {
+	public Response doUpdate(UpdateUserData data) {
 		LOG.fine("Attempt to edit user: " + data.username);
 		if (!data.validRegistration()) {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
