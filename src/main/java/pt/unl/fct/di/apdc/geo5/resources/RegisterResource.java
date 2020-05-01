@@ -58,6 +58,7 @@ public class RegisterResource {
 						.set("user_email", data.email)
 						.set("user_role", "User")
 						.set("user_creation_time", Timestamp.now())
+						.set("user_last_update_time", Timestamp.now())
 						.set("user_street", "")
 						.set("user_place", "")
 						.set("user_country", "")

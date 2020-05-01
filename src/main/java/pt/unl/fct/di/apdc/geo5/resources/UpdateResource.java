@@ -19,7 +19,6 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
-import pt.unl.fct.di.apdc.geo5.util.RegisterData;
 import pt.unl.fct.di.apdc.geo5.util.UpdateUserData;
 
 @Path("/update")
@@ -52,10 +51,12 @@ public class UpdateResource {
 						.set("user_pwd", DigestUtils.sha512Hex(data.password))
 						.set("user_email", data.email)
 						.set("user_role", data.role)
-						.set("user_creation_time", Timestamp.now())
+						.set("user_creation_time", user.getTimestamp("user_creation_time"))
+						.set("user_last_update_time", Timestamp.now())
 						.set("user_street", data.street)
 						.set("user_place", data.place)
 						.set("user_country", data.country)
+						.set("active_account", data.isActive)
 						.build();
 				txn.update(user);
 				LOG.info("User information changed: " + data.username);

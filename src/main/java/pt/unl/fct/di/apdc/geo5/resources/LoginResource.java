@@ -27,6 +27,7 @@ import com.google.cloud.datastore.Transaction;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.apdc.geo5.util.AuthToken;
+import pt.unl.fct.di.apdc.geo5.util.Jwt;
 import pt.unl.fct.di.apdc.geo5.util.LoginData;
 
 @Path("/login")
@@ -111,31 +112,14 @@ public class LoginResource {
 						.build();
 				
 				String role = (String) user.getString("user_role");
-				AuthToken token = new AuthToken(data.username, role);
+				AuthToken t = new AuthToken(data.username, role);
 
-				Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(token.tokenID);
-				
-				/**
-				if(txn.get(tokenKey) != null) {
-					//User already logged in
-					LOG.warning("User " + data.username + " already logged in.");
-					return Response.status(Status.FORBIDDEN).build();
-				}
-				**/
-			
 				//Return token
-				Entity userToken = Entity.newBuilder(tokenKey)
-						.set("user_name", data.username)
-						.set("token_ID", token.tokenID)
-						.set("user_role", token.role)
-						.set("creation_data",token.creationData)
-						.set("expiration_data",token.expirationData)
-						.set("validity", token.isValid)
-						.build();
+				Jwt j = new Jwt();
+				String token = j.generateJwtToken(t);
 				
 				//Batch operation
 				txn.put(log, ustats);
-				txn.add(userToken);
 				txn.commit();
 				
 				LOG.info("User '" + data.username + "' logged in successfully.");
