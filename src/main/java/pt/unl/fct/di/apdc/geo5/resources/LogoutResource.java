@@ -18,8 +18,10 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
 import com.google.cloud.datastore.KeyFactory;
+import com.google.cloud.datastore.PathElement;
 
 import pt.unl.fct.di.apdc.geo5.util.AuthToken;
+import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
 
 @Path("/logout")
@@ -32,37 +34,34 @@ public class LogoutResource {
 	private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
-	private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
+	private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("UserStats");
 
 	public LogoutResource() { }
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doLogout(AuthToken data) {
+	public Response doLogout(String t) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(t);
 		LOG.fine("Attempt to logout user: " + data.username);
-		Key tokenKey = tokenKeyFactory.newKey(data.tokenID);
+		Key userStatsKey = tokenKeyFactory.addAncestors(PathElement.of("User", data.username)).newKey("counters");
 		Transaction txn = datastore.newTransaction();
 		try {
-			Entity e = txn.get(tokenKey);
+			Entity e = txn.get(userStatsKey);
 			if(e == null) {
 				LOG.warning("Failed logout attempt for username: " + data.username);
 				return Response.status(Status.FORBIDDEN).build();
 			}
-            AuthToken token = new AuthToken(
-            		e.getString("user_name"),
-                    e.getString("token_ID"),
-                    e.getLong("creation_data"),
-                    e.getLong("expiration_data"),
-                    e.getString("user_role"));
-            if(data.equals(token) && data.validToken() && e.getBoolean("validity")) {
-            	data.makeInvalid();
-            	e = Entity.newBuilder(tokenKey)
-						.set("user_name", data.username)
-						.set("token_ID", data.tokenID)
-						.set("user_role", data.role)
-						.set("creation_data", data.creationData)
-						.set("expiration_data", data.expirationData)
-            			.set("validity", false).build();
+            String jwt = e.getString("user_token");
+            if(t.equals(jwt) && data.validToken()) {
+            	e = Entity.newBuilder(userStatsKey)
+						.set("user_stats_logins", e.getLong("user_stats_logins"))
+						.set("user_stats_failed", e.getLong("user_stats_failed"))
+						.set("user_first_login", e.getTimestamp("user_first_login"))
+						.set("user_last_login", e.getTimestamp("user_last_login"))
+						.set("user_last_attempt", e.getTimestamp("user_last_attempt"))
+						.set("user_token", "null")
+            			.build();
             	txn.update(e);
 				txn.commit();
 				LOG.info("User '" + data.username + "' logged out successfully.");
@@ -72,7 +71,6 @@ public class LogoutResource {
 				LOG.warning("Invalid token for username: " + data.username);
 				return Response.status(Status.FORBIDDEN).build();
 			}
-			
 		} catch(Exception e) {
 			txn.rollback();
 			LOG.severe(e.getMessage());

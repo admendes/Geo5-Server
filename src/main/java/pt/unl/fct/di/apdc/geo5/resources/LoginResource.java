@@ -84,6 +84,7 @@ public class LoginResource {
 						.set("user_stats_failed", 0L)
 						.set("user_first_login", Timestamp.now())
 						.set("user_last_login", Timestamp.now())
+						.set("user_last_attempt", Timestamp.now())
 						.build();
 			}
 			
@@ -102,6 +103,13 @@ public class LoginResource {
 						.set("user_login_time", Timestamp.now())
 						.build();
 				
+				String role = (String) user.getString("user_role");
+				AuthToken t = new AuthToken(data.username, role);
+
+				//Return token
+				Jwt j = new Jwt();
+				String token = j.generateJwtToken(t);
+
 				//Gets the user statistics and updates it
 				//Copying information every time a user logins maybe is not a good solution (why?)
 				Entity ustats = Entity.newBuilder(ctrsKey)
@@ -109,14 +117,9 @@ public class LoginResource {
 						.set("user_stats_failed", 0L)
 						.set("user_first_login", stats.getTimestamp("user_first_login"))
 						.set("user_last_login", Timestamp.now())
+						.set("user_last_attempt", 0L)
+						.set("user_token", token)
 						.build();
-				
-				String role = (String) user.getString("user_role");
-				AuthToken t = new AuthToken(data.username, role);
-
-				//Return token
-				Jwt j = new Jwt();
-				String token = j.generateJwtToken(t);
 				
 				//Batch operation
 				txn.put(log, ustats);
@@ -127,12 +130,14 @@ public class LoginResource {
 			} else {
 				//Incorrect password
 				//Copying here is even worse. Propose a better solution!
-				Entity ustats = Entity.newBuilder(ctrsKey)
+				Entity ustats = txn.get(ctrsKey);
+				ustats = Entity.newBuilder(ctrsKey)
 						.set("user_stats_logins", stats.getLong("user_stats_logins"))
 						.set("user_stats_failed", 1L + stats.getLong("user_stats_failed"))
 						.set("user_first_login", stats.getTimestamp("user_first_login"))
 						.set("user_last_login", stats.getTimestamp("user_last_login"))
 						.set("user_last_attempt", Timestamp.now())
+						.set("user_token", ustats.getString("user_token"))
 						.build();
 				txn.put(ustats);
 				txn.commit();
