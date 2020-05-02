@@ -66,8 +66,8 @@ public class Jwt {
 		System.out.println("Expiration : " + body.getExpiration());
 	}
 	
-	public AuthToken getAuthToken(String token) {
-		Claims parseClaimsJws = Jwts.parser().setSigningKey("1nc4jRjdO5enfUc4loN3q7gEb8fhr9O").parseClaimsJws(token).getBody();
+	public AuthToken getAuthToken(JwtData jData) {
+		Claims parseClaimsJws = Jwts.parser().setSigningKey("1nc4jRjdO5enfUc4loN3q7gEb8fhr9O").parseClaimsJws(jData.id).getBody();
 		final ObjectMapper mapper = new ObjectMapper();
 		return mapper.convertValue(parseClaimsJws.get("token"), AuthToken.class);
 	}

@@ -22,6 +22,7 @@ import com.google.cloud.datastore.PathElement;
 
 import pt.unl.fct.di.apdc.geo5.util.AuthToken;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
+import pt.unl.fct.di.apdc.geo5.util.JwtData;
 
 
 @Path("/logout")
@@ -40,9 +41,9 @@ public class LogoutResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doLogout(String t) {
+	public Response doLogout(JwtData jData) {
 		Jwt j = new Jwt();
-		AuthToken data = j.getAuthToken(t);
+		AuthToken data = j.getAuthToken(jData);
 		LOG.fine("Attempt to logout user: " + data.username);
 		Key userStatsKey = tokenKeyFactory.addAncestors(PathElement.of("User", data.username)).newKey("counters");
 		Transaction txn = datastore.newTransaction();
@@ -53,7 +54,7 @@ public class LogoutResource {
 				return Response.status(Status.FORBIDDEN).build();
 			}
             String jwt = e.getString("user_token");
-            if(t.equals(jwt) && data.validToken()) {
+            if(jData.id.equals(jwt) && data.validToken()) {
             	e = Entity.newBuilder(userStatsKey)
 						.set("user_stats_logins", e.getLong("user_stats_logins"))
 						.set("user_stats_failed", e.getLong("user_stats_failed"))
