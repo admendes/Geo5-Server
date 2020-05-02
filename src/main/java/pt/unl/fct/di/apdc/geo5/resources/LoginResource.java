@@ -117,7 +117,7 @@ public class LoginResource {
 						.set("user_stats_failed", 0L)
 						.set("user_first_login", stats.getTimestamp("user_first_login"))
 						.set("user_last_login", Timestamp.now())
-						.set("user_last_attempt", 0L)
+						.set("user_last_attempt", Timestamp.now())
 						.set("user_token", token)
 						.build();
 				
