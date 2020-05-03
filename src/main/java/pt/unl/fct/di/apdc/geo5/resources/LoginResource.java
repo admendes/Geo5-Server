@@ -26,9 +26,9 @@ import com.google.cloud.datastore.StringValue;
 import com.google.cloud.datastore.Transaction;
 import com.google.gson.Gson;
 
-import pt.unl.fct.di.apdc.geo5.util.AuthToken;
+import pt.unl.fct.di.apdc.geo5.data.AuthToken;
+import pt.unl.fct.di.apdc.geo5.data.LoginData;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
-import pt.unl.fct.di.apdc.geo5.util.LoginData;
 
 @Path("/login")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")

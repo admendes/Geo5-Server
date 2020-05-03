@@ -1,4 +1,4 @@
-package pt.unl.fct.di.apdc.geo5.util;
+package pt.unl.fct.di.apdc.geo5.data;
 
 public class LoginData {
 	

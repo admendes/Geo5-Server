@@ -22,7 +22,7 @@ import com.google.cloud.datastore.Transaction;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
 
-import pt.unl.fct.di.apdc.geo5.util.RegisterData;
+import pt.unl.fct.di.apdc.geo5.data.DeleteData;
 
 @Path("/delete")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -38,7 +38,7 @@ public class DeleteResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doDelete(RegisterData data) {
+	public Response doDelete(DeleteData data) {
 		LOG.fine("Attempt to delete user: " + data.username);
 		Transaction txn = datastore.newTransaction();
 		try {
@@ -69,7 +69,7 @@ public class DeleteResource {
 	@POST
 	@Path("/inactiveUsers")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteInactiveUsers(RegisterData data) {
+	public Response deleteInactiveUsers(DeleteData data) {
 		LOG.fine("Attempt to delete inactive users");
 		Transaction txn = datastore.newTransaction();
 		try {
@@ -100,7 +100,7 @@ public class DeleteResource {
 	@POST
 	@Path("/invalidTokens")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteInvalidTokens(RegisterData data) {
+	public Response deleteInvalidTokens(DeleteData data) {
 		LOG.fine("Attempt to delete invalid tokens");
 		Transaction txn = datastore.newTransaction();
 		try {

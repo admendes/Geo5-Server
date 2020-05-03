@@ -1,8 +1,8 @@
-package pt.unl.fct.di.apdc.geo5.util;
+package pt.unl.fct.di.apdc.geo5.data;
 
 public class GeoSpotData {
 	
-	public Pointer location;
+	public PointerData location;
 	public String username;
 	public String geoSpotName;
 	public String description;
@@ -12,7 +12,7 @@ public class GeoSpotData {
 		
 	}
 	
-	public GeoSpotData(Pointer location, String username, String geoSpotName, String description, boolean isActive) {
+	public GeoSpotData(PointerData location, String username, String geoSpotName, String description, boolean isActive) {
 		this.location = location;
 		this.username = username;
 		this.geoSpotName = geoSpotName;

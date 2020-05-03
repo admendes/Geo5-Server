@@ -1,9 +1,9 @@
-package pt.unl.fct.di.apdc.geo5.util;
+package pt.unl.fct.di.apdc.geo5.data;
 
 public class RouteData {
 
-	public Pointer start;
-	public Pointer end;
+	public PointerData start;
+	public PointerData end;
 	public String routeName;
 	public String username;
 	public String description;
@@ -13,7 +13,7 @@ public class RouteData {
 		
 	}
 	
-	public RouteData(Pointer start, Pointer end, String name, String username, String description, boolean isActive) {
+	public RouteData(PointerData start, PointerData end, String name, String username, String description, boolean isActive) {
 		this.start = start;
 		this.end = end;
 		this.routeName = name;

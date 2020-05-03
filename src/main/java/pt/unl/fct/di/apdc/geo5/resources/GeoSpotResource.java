@@ -18,8 +18,8 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 import com.google.gson.Gson;
 
-import pt.unl.fct.di.apdc.geo5.util.GeoSpotData;
-import pt.unl.fct.di.apdc.geo5.util.Pointer;
+import pt.unl.fct.di.apdc.geo5.data.GeoSpotData;
+import pt.unl.fct.di.apdc.geo5.data.PointerData;
 
 @Path("/geoSpot")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -89,7 +89,7 @@ public class GeoSpotResource {
 			if (gs == null) {
 				return Response.status(Status.BAD_REQUEST).entity("GeoSpot does not exist.").build();
 			} else {
-				Pointer location = new Pointer(gs.getLong("geoSpot_lat"), gs.getLong("geoSpot_lon"));
+				PointerData location = new PointerData(gs.getLong("geoSpot_lat"), gs.getLong("geoSpot_lon"));
 				GeoSpotData geoSpot = new GeoSpotData(
 						location,
 						gs.getString("geoSpot_owner"),

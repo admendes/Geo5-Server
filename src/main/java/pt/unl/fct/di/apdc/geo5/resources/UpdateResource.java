@@ -19,7 +19,7 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
-import pt.unl.fct.di.apdc.geo5.util.UpdateUserData;
+import pt.unl.fct.di.apdc.geo5.data.UpdateUserData;
 
 @Path("/update")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")

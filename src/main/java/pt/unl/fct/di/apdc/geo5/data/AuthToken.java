@@ -1,4 +1,4 @@
-package pt.unl.fct.di.apdc.geo5.util;
+package pt.unl.fct.di.apdc.geo5.data;
 
 import java.util.UUID;
 
@@ -55,8 +55,8 @@ public class AuthToken {
     }
     
     public boolean validToken() {
-        return validField(username) &&
-                validField(tokenID) &&
+        return validField(this.username) &&
+                validField(this.tokenID) &&
                 validData() &&
                 this.isValid;
     }

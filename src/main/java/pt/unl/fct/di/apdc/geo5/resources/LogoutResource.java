@@ -17,12 +17,12 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
+import pt.unl.fct.di.apdc.geo5.data.AuthToken;
+import pt.unl.fct.di.apdc.geo5.data.JwtData;
+import pt.unl.fct.di.apdc.geo5.util.Jwt;
+
 import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.PathElement;
-
-import pt.unl.fct.di.apdc.geo5.util.AuthToken;
-import pt.unl.fct.di.apdc.geo5.util.Jwt;
-import pt.unl.fct.di.apdc.geo5.util.JwtData;
 
 
 @Path("/logout")
@@ -54,7 +54,7 @@ public class LogoutResource {
 				return Response.status(Status.FORBIDDEN).build();
 			}
             String jwt = e.getString("user_token");
-            if(jData.id.equals(jwt) && data.validToken()) {
+            if(jData.token.equals(jwt) && data.validToken()) {
             	e = Entity.newBuilder(userStatsKey)
 						.set("user_stats_logins", e.getLong("user_stats_logins"))
 						.set("user_stats_failed", e.getLong("user_stats_failed"))

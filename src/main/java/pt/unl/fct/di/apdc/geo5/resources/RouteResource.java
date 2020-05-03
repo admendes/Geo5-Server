@@ -18,8 +18,8 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 import com.google.gson.Gson;
 
-import pt.unl.fct.di.apdc.geo5.util.Pointer;
-import pt.unl.fct.di.apdc.geo5.util.RouteData;
+import pt.unl.fct.di.apdc.geo5.data.PointerData;
+import pt.unl.fct.di.apdc.geo5.data.RouteData;
 
 @Path("/route")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -89,8 +89,8 @@ public class RouteResource {
 			if (r == null) {
 				return Response.status(Status.BAD_REQUEST).entity("Route does not exist.").build();
 			} else {
-				Pointer start = new Pointer(r.getLong("route_start_lat"), r.getLong("route_start_lon"));
-				Pointer end = new Pointer(r.getLong("route_end_lat"), r.getLong("route_end_lon"));
+				PointerData start = new PointerData(r.getLong("route_start_lat"), r.getLong("route_start_lon"));
+				PointerData end = new PointerData(r.getLong("route_end_lat"), r.getLong("route_end_lon"));
 				RouteData route = new RouteData(
 						start,
 						end,

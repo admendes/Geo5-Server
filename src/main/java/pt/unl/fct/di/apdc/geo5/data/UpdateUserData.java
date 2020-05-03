@@ -1,4 +1,4 @@
-package pt.unl.fct.di.apdc.geo5.util;
+package pt.unl.fct.di.apdc.geo5.data;
 
 public class UpdateUserData {
 
@@ -38,11 +38,14 @@ public class UpdateUserData {
 	}
 	
 	public boolean validRegistration() {
-		return validField(username) &&
-			   validField(name) &&
-			   validField(email) &&
-			   validField(password) &&
-			   email.contains("@");		
+		return validField(this.username) &&
+			   validField(this.name) &&
+			   validEmail() &&
+			   validField(this.password);
 	}
+	
+    private boolean validEmail() {
+        return this.email.matches("^[\\w!#$%&’*+/=?`{|}~^-]+(?:\\.[\\w!#$%&’*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$");
+    }
 
 }
