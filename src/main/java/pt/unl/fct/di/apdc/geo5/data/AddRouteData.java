@@ -23,7 +23,7 @@ public class AddRouteData {
 	}
 	
 	private boolean validField(String value) {
-		return value != null && !value.equals("");
+		return true ; //value != null && !value.equals("");
 	}
 	
 	public boolean validRegistration() {
