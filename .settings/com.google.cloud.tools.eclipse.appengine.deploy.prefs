@@ -1,8 +1,12 @@
-account.email=ad.mendes@campus.fct.unl.pt
+account.email=a.denisov@campus.fct.unl.pt
 eclipse.preferences.version=1
 include.optional.configuration.files=true
 project.bucket=
-project.id=brave-idea-270314
+project.id=apdc-geoproj
 project.previousVersion.stop=true
 project.promote=true
+<<<<<<< HEAD
 project.version=jwt64
+=======
+project.version=directionstest
+>>>>>>> 993e9fa8397637a774b553fa96425490f14e950f
