@@ -1,0 +1,113 @@
+<div>
+<div class="mainBarCompBox">  
+<div class="mainBarComp">
+    <div class="subComp">
+        <carousel [slides]="slides"></carousel> 
+    </div>
+    <div class="card text-center">
+        <div class="card-header">
+          <ul class="nav nav-pills card-header-pills">
+            <li class="nav-item" (click)="ChangeOnMainPageT()">
+              <a class="nav-link" [routerLink]="[ '/map']">Mapa </a>
+            </li>
+            <li class="nav-item" (click)="ChangeOnMainPageF()">
+              <a class="nav-link" [routerLink]="[ '/map/caminho']">Caminho</a>
+            </li>
+            <li class="nav-item" (click)="ChangeOnMainPageF()">
+              <a class="nav-link" [routerLink]="[ '/map/control']">Controlos </a>
+            </li>
+          </ul>
+        </div>
+        <router-outlet></router-outlet>
+    </div>
+    <div *ngIf="onMainPage">
+        <div class="card-body">
+            <div class="card-body">
+                <div>Latitude: {{latitudeM}}</div>
+                <div>Longitude: {{longitudeM}}</div>
+                <h5 class="card-title">Special title treatment</h5>
+                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                <div class="row" *ngIf="newDefInc">
+                    <div class="col">
+                        <button  class="btn btn-primary" (click)="removeDirection()" >Hide</button>
+                    </div>
+                    <div class="col">
+                        <button  class="btn btn-primary" (click)="showDirection()" >Show</button>
+                    </div>
+                    <div class="col">
+                        <button id="new" class="btn btn-primary" (click)="definirCaminho()" >New</button>
+                    </div>
+                    {{ waywayway | json }}
+                </div>
+                <div *ngIf="!newDefInc">
+                <div class="row" *ngIf="!newDefInc">
+                    <div class="alert alert-primary" role="alert">
+                        Hello there! You may chose Strarting Point! <strong>Just Drag Marker and Press Set when you ready!</strong>
+                      </div>
+                    <div class="col">
+                        <button  class="btn btn-primary" (click)="definirC2()" >Set</button>
+                    </div>
+                </div><br>
+                    <div class="row"> 
+                        <div class="alert alert-primary" role="alert">
+                            Or you can use this form:
+                        </div>
+                    </div>
+                        <form [formGroup]="formDir" (ngSubmit)="onSubmit(formDir.value)">
+                            <div class="form-group" formGroupName="origin">
+                              <label for="exampleInputEmail1">Latitude e Longitude Start Point</label>
+                              <input type="text" class="form-control" formControlName="lat" [value]="origin.lat" placeholder="latitude start">
+                              <input type="text" class="form-control" formControlName="lng" [value]="destination.lng" placeholder="longitude start">
+                            </div>
+                            <div class="form-group" formGroupName="destination">
+                                <label for="exampleInputEmail1">Latitude e Longitude End Point</label>
+                                <input type="text" class="form-control" formControlName="lat" [value]="destination.lat" placeholder="latitude finish">
+                                <input type="text" class="form-control" formControlName="lng" [value]="destination.lng" placeholder="longitude finish">
+                              </div>    
+                            <button type="submit" class="btn btn-primary" >Submit</button>
+                            <br><br><br><br><br><br>
+                        </form>
+            
+                </div>    
+        </div>
+    </div>            
+</div>
+</div>  
+    <agm-map
+    #map
+    [latitude]="latitude" 
+    [longitude]="longitude" 
+    [zoom]="zoom" 
+    [disableDoubleClickZoom]="true"    
+    (mapRightClick)="getOptions($event,infoWindowOption)"
+    >
+        <agm-info-window
+        #infoWindowOption
+        [latitude]="infoOptionLat" 
+        [longitude]="infoOptionLng"  
+        [disableAutoPan]="true" 
+        [isOpen]="show2"
+        >
+ 
+        </agm-info-window>
+        
+        <agm-marker 
+        [latitude]="latitudeM" 
+        [longitude]="longitudeM"
+        [markerDraggable]="true"
+        (drag)="markerDragEnd($event)"> 
+        </agm-marker>
+
+        <agm-marker *ngFor="let marker of markers" [latitude]="marker.latitude" [longitude]="marker.longitude" [markerDraggable]="false" (markerClick)="clickedMarker(infowindow)" [visible]=show>       
+            <agm-info-window [disableAutoPan]="true" #infowindow>{{marker.info}}</agm-info-window>
+        </agm-marker>
+            
+        <agm-direction #defWay *ngFor="let way of waywayway" [travelMode]="way.travelMode" [origin]="way.origin" [destination]="way.destination" [waypoints]="way.waypoints" [visible]="way.visible">
+        
+        </agm-direction>
+
+
+
+    </agm-map>
+
+</div>

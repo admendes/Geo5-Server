@@ -1,33 +1,19 @@
 package pt.unl.fct.di.apdc.geo5.data;
 
 public class RouteData {
-
-	public PointerData start;
-	public PointerData end;
+	
 	public String routeName;
-	public String username;
-	public String description;
-	public boolean isActive;
+	public String token;
+
 	
 	public RouteData() {
 		
 	}
 	
-	public RouteData(PointerData start, PointerData end, String name, String username, String description, boolean isActive) {
-		this.start = start;
-		this.end = end;
-		this.routeName = name;
-		this.username = username;
-		this.description = description;
-		this.isActive = isActive;
+	public RouteData(String routeName, String token) {
+		
+			this.routeName = routeName;
+			this.token = token;
 	}
 	
-	private boolean validField(String value) {
-		return value != null && !value.equals("");
-	}
-	
-	public boolean validRegistration() {
-		return validField(username) &&
-			   validField(routeName);	
-	}
 }

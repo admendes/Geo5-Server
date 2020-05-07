@@ -1,0 +1,20 @@
+<div>    
+
+    <div class="card-body">
+        <div class="card-body">
+            <h5 class="card-title">Special title treatment</h5>
+            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+    </div>
+<div>
+    <ngb-accordion [closeOthers]="true">
+        <ngb-panel id="f" title="Show Routes / Hide Routes">
+            <ng-template ngbPanelContent>
+                <app-direction 
+                *ngFor="let direction of directions"
+                [direction]="direction"
+                ></app-direction>
+            </ng-template>
+        </ngb-panel>
+    </ngb-accordion>
+</div>
+</div>

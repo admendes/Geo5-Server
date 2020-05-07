@@ -19,7 +19,10 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
+import pt.unl.fct.di.apdc.geo5.data.AuthToken;
+import pt.unl.fct.di.apdc.geo5.data.JwtData;
 import pt.unl.fct.di.apdc.geo5.data.UpdateUserData;
+import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
 @Path("/update")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -33,9 +36,16 @@ public class UpdateResource {
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doUpdate(UpdateUserData data) {
+	public Response doUpdate(UpdateUserData updateData) {
+		Jwt j = new Jwt();
+		JwtData jData = new JwtData(updateData.token);
+		AuthToken data = j.getAuthToken(jData);
 		LOG.fine("Attempt to edit user: " + data.username);
-		if (!data.validRegistration()) {
+		if (!j.validToken(jData)) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!updateData.validRegistration()) {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		}
 		Transaction txn = datastore.newTransaction();
@@ -47,16 +57,16 @@ public class UpdateResource {
 			}
 			Entity user = datastore.get(userKey);
 				user = Entity.newBuilder(userKey)
-						.set("user_name", data.name)
-						.set("user_pwd", DigestUtils.sha512Hex(data.password))
-						.set("user_email", data.email)
-						.set("user_role", data.role)
+						.set("user_name", updateData.name)
+						.set("user_pwd", DigestUtils.sha512Hex(updateData.password))
+						.set("user_email", updateData.email)
+						.set("user_role", updateData.role)
 						.set("user_creation_time", user.getTimestamp("user_creation_time"))
 						.set("user_last_update_time", Timestamp.now())
-						.set("user_street", data.street)
-						.set("user_place", data.place)
-						.set("user_country", data.country)
-						.set("active_account", data.isActive)
+						.set("user_street", updateData.street)
+						.set("user_place", updateData.place)
+						.set("user_country", updateData.country)
+						.set("active_account", updateData.isActive)
 						.build();
 				txn.update(user);
 				LOG.info("User information changed: " + data.username);

@@ -1,0 +1,6 @@
+<div [ngClass]="setClasses()">
+           <p> {{direction.description}} </p>
+           <p> It starts in Coordinates: {{direction.origin.lat}} & {{direction.origin.lng}}</p>
+           <p>And end in Coordinates: {{direction.destination.lat}} & {{direction.destination.lng}}</p>
+           <button type="button" class="btn btn-primary" (click)="showHide()">Show/Hide this Direction</button>      
+</div>

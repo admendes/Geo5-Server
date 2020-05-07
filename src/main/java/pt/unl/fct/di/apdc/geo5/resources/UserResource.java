@@ -24,9 +24,12 @@ import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
-import pt.unl.fct.di.apdc.geo5.data.LoginData;
+import pt.unl.fct.di.apdc.geo5.data.AuthToken;
+import pt.unl.fct.di.apdc.geo5.data.JwtData;
 import pt.unl.fct.di.apdc.geo5.data.UserData;
+import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
 @Path("/user")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -44,23 +47,34 @@ public class UserResource {
 	@POST
 	@Path("/get")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getUser(String username) {
-		LOG.fine("Attempt to get user: " + username);
-		if (username.equals("")) {
-			return Response.status(Status.BAD_REQUEST).entity("Please enter a username.").build();
+	public Response getUser(UserData userData) {
+		Jwt j = new Jwt();
+		JwtData jData = new JwtData(userData.token);
+		AuthToken data = j.getAuthToken(jData);
+		LOG.fine("Attempt to get user: " + userData.username + " by user: " + data.username);
+		if (!j.validToken(jData)) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
 		}
 		try {
-			Key userKey = datastore.newKeyFactory().setKind("User").newKey(username);
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(userData.username);
 			Entity u = datastore.get(userKey);
 			if (u == null) {
 				return Response.status(Status.BAD_REQUEST).entity("Username does not exist.").build();
 			} else {
-				UserData user = new UserData(
-						u.getKey().toString(),
-						u.getString("user_name"),
-						u.getString("user_email"));
-				LOG.info("Got user: " + username);
-				return Response.ok(g.toJson(user)).build();
+		        JsonObject result = new JsonObject();
+		        result.addProperty("user_username", u.getKey().getName());
+		        result.addProperty("user_name", u.getString("user_name"));
+		        result.addProperty("user_email", u.getString("user_email"));
+		        result.addProperty("user_role", u.getString("user_role"));
+		        result.addProperty("user_creation_time", u.getTimestamp("user_creation_time").toString());
+		        result.addProperty("user_last_update_time", u.getTimestamp("user_last_update_time").toString());
+		        result.addProperty("user_street", u.getString("user_street"));
+		        result.addProperty("user_place", u.getString("user_place"));
+		        result.addProperty("user_country", u.getString("user_country"));
+		        result.addProperty("active_account", u.getBoolean("active_account"));
+				LOG.info("Got user: " + userData.username + " for user: " + data.username);
+				return Response.ok(g.toJson(result)).build();
 			}
 		} catch (Exception e) {
 			LOG.severe(e.getMessage());
@@ -69,10 +83,32 @@ public class UserResource {
 	}
 	
 	@POST
+	@Path("/refreshToken")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response refreshToken(JwtData jData) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(jData);
+		LOG.fine("Attempt to refresh token for user: " + data.username);
+		if (!j.validToken(jData)) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		AuthToken t = new AuthToken(data.username, data.role);
+		String token = j.generateJwtToken(t);
+		return Response.ok(g.toJson(token)).build();
+	}
+	
+	@POST
 	@Path("/listActive")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response listActiveUsers(LoginData data) {
+	public Response listActiveUsers(JwtData jData) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(jData);
 		LOG.fine("Attempt to list active users");
+		if (!j.validToken(jData)) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
 		Query<Entity> query = Query.newEntityQueryBuilder()
 				.setKind("User")
 				.setFilter(PropertyFilter.eq("active_account", true))
@@ -89,8 +125,14 @@ public class UserResource {
 	@POST
 	@Path("/last24hlogins")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response last24hlogins(LoginData data) {
+	public Response last24hlogins(JwtData jData) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(jData);
 		LOG.fine("Attempt to get last 24h logins");
+		if (!j.validToken(jData)) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, -1);
 		Timestamp yesterday = Timestamp.of(cal.getTime());

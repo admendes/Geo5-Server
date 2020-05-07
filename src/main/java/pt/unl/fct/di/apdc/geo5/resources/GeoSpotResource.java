@@ -17,9 +17,13 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
+import pt.unl.fct.di.apdc.geo5.data.AddGeoSpotData;
+import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.GeoSpotData;
-import pt.unl.fct.di.apdc.geo5.data.PointerData;
+import pt.unl.fct.di.apdc.geo5.data.JwtData;
+import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
 @Path("/geoSpot")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -35,32 +39,37 @@ public class GeoSpotResource {
 	@POST
 	@Path("/submit")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response submitRoute(GeoSpotData data) {
-		LOG.fine("Attempt to submit geoSpot: " + data.geoSpotName + " from user: " + data.username);
-		
-		if (!data.validRegistration()) {
+	public Response submitRoute(AddGeoSpotData geoSpotData) {
+		Jwt j = new Jwt();
+		JwtData jData = new JwtData(geoSpotData.token);
+		AuthToken data = j.getAuthToken(jData);
+		LOG.fine("Attempt to submit GeoSpot: " + geoSpotData.geoSpotName + " from user: " + data.username);
+		if (!j.validToken(jData)) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}		
+		if (!geoSpotData.validRegistration()) {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		}
-		
 		Transaction txn = datastore.newTransaction();
 		try {
-			Key geoSpotKey = datastore.newKeyFactory().setKind("GeoSpot").newKey(data.geoSpotName);
+			Key geoSpotKey = datastore.newKeyFactory().setKind("GeoSpot").newKey(geoSpotData.geoSpotName);
 			Entity geoSpot = datastore.get(geoSpotKey);
 			if (geoSpot != null) {
 				txn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("GeoSpot already exists.").build();
 			} else {
 				geoSpot = Entity.newBuilder(geoSpotKey)
-						.set("geoSpot_name", data.geoSpotName)
+						.set("geoSpot_name", geoSpotData.geoSpotName)
 						.set("geoSpot_owner", data.username)
-						.set("geoSpot_description", data.description)
+						.set("geoSpot_description", geoSpotData.description)
 						.set("geoSpot_creation_time", Timestamp.now())
-						.set("geoSpot_lat", data.location.lat)
-						.set("geoSpot_lon", data.location.lon)
+						.set("geoSpot_lat", geoSpotData.location.lat)
+						.set("geoSpot_lon", geoSpotData.location.lon)
 						.set("active_geoSpot", true)
 						.build();
 				txn.add(geoSpot);
-				LOG.info("GeoSpot registered " + data.geoSpotName + "from user: " + data.username);
+				LOG.info("GeoSpot registered " + geoSpotData.geoSpotName + "from user: " + data.username);
 				txn.commit();
 				return Response.ok("{}").build();
 			}
@@ -78,26 +87,34 @@ public class GeoSpotResource {
 	@POST
 	@Path("/get")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getGeoSpot(String geoSpotName) {
-		LOG.fine("Attempt to get GeoSpot: " + geoSpotName);
-		if (geoSpotName.equals("")) {
+	public Response getGeoSpot(GeoSpotData geoSpotData) {
+		Jwt j = new Jwt();
+		JwtData jData = new JwtData(geoSpotData.token);
+		AuthToken data = j.getAuthToken(jData);
+		LOG.fine("Attempt to get GeoSpot: " + geoSpotData.geoSpotName + " by user: " + data.username);
+		if (!j.validToken(jData)) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (geoSpotData.geoSpotName.equals("")) {
 			return Response.status(Status.BAD_REQUEST).entity("Please enter a GeoSpot name.").build();
 		}
 		try {
-			Key geoSpotKey = datastore.newKeyFactory().setKind("GeoSpot").newKey(geoSpotName);
+			Key geoSpotKey = datastore.newKeyFactory().setKind("GeoSpot").newKey(geoSpotData.geoSpotName);
 			Entity gs = datastore.get(geoSpotKey);
 			if (gs == null) {
 				return Response.status(Status.BAD_REQUEST).entity("GeoSpot does not exist.").build();
 			} else {
-				PointerData location = new PointerData(gs.getLong("geoSpot_lat"), gs.getLong("geoSpot_lon"));
-				GeoSpotData geoSpot = new GeoSpotData(
-						location,
-						gs.getString("geoSpot_owner"),
-						gs.getString("geoSpot_name"),
-						gs.getString("geoSpot_description"),
-						gs.getBoolean("active_geoSpot"));
-				LOG.info("Got geoSpot: " + geoSpotName);
-				return Response.ok(g.toJson(geoSpot)).build();
+		        JsonObject result = new JsonObject();
+		        result.addProperty("geoSpot_name", gs.getKey().getName());
+		        result.addProperty("geoSpot_owner", gs.getString("geoSpot_owner"));
+		        result.addProperty("geoSpot_description", gs.getString("geoSpot_description"));
+		        result.addProperty("geoSpot_creation_time", gs.getTimestamp("route_creation_time").toString());
+		        result.addProperty("geoSpot_lat", gs.getLong("geoSpot_lat"));
+		        result.addProperty("geoSpot_lon", gs.getLong("geoSpot_lon"));
+		        result.addProperty("active_geoSpot", gs.getBoolean("active_geoSpot"));
+				LOG.info("Got GeoSpot: " + geoSpotData.geoSpotName + " for user: " + data.username);
+				return Response.ok(g.toJson(result)).build();
 			}
 		} catch (Exception e) {
 			LOG.severe(e.getMessage());

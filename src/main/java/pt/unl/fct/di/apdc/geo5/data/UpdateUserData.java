@@ -11,12 +11,13 @@ public class UpdateUserData {
 	public String country;
 	public String role;
 	public boolean isActive;
+	public String token;
 
 	public UpdateUserData() {
 		
 	}
 	
-	public UpdateUserData(String username, String name, String email, String password, String role, String street, String place, String country, boolean isActive) {
+	public UpdateUserData(String username, String name, String email, String password, String role, String street, String place, String country, boolean isActive, String token) {
 		
 			this.username = username;
 			this.name = name;
@@ -31,6 +32,7 @@ public class UpdateUserData {
 			this.place = place;
 			this.country = country;
 			this.isActive = isActive;
+			this.token = token;
 	}
 	
 	private boolean validField(String value) {
