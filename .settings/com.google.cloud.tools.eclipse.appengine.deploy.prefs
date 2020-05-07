@@ -5,4 +5,4 @@ project.bucket=
 project.id=brave-idea-270314
 project.previousVersion.stop=true
 project.promote=true
-project.version=map
+project.version=jwt64

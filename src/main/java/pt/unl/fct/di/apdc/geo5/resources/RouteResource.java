@@ -6,6 +6,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -20,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
-import pt.unl.fct.di.apdc.geo5.data.JwtData;
 import pt.unl.fct.di.apdc.geo5.data.RouteData;
 import pt.unl.fct.di.apdc.geo5.data.AddRouteData;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
@@ -39,12 +40,11 @@ public class RouteResource {
 	@POST
 	@Path("/submit")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response submitRoute(AddRouteData routeData) {
+	public Response submitRoute(AddRouteData routeData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
-		JwtData jData = new JwtData(routeData.token);
-		AuthToken data = j.getAuthToken(jData);
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to submit route: " + routeData.routeName + " from user: " + data.username);
-		if (!j.validToken(jData)) {
+		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
@@ -89,12 +89,11 @@ public class RouteResource {
 	@POST
 	@Path("/get")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getRoute(RouteData routeData) {
+	public Response getRoute(RouteData routeData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
-		JwtData jData = new JwtData(routeData.token);
-		AuthToken data = j.getAuthToken(jData);
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to get route: " + routeData.routeName + " by user: " + data.username);
-		if (!j.validToken(jData)) {
+		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}

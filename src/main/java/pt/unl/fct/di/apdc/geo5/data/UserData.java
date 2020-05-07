@@ -3,17 +3,14 @@ package pt.unl.fct.di.apdc.geo5.data;
 public class UserData {
 	
 	public String username;
-	public String token;
-
 	
 	public UserData() {
 		
 	}
 	
-	public UserData(String username, String token) {
+	public UserData(String username) {
 		
 			this.username = username;
-			this.token = token;
 	}
 	
 }

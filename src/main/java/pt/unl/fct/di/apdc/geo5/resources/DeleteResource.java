@@ -8,6 +8,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -22,7 +24,9 @@ import com.google.cloud.datastore.Transaction;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
 
+import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.DeleteData;
+import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
 @Path("/delete")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -38,21 +42,27 @@ public class DeleteResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doDelete(DeleteData data) {
-		LOG.fine("Attempt to delete user: " + data.username);
+	public Response doDelete(DeleteData deleteData, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to delete user: " + deleteData.username);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
 		Transaction txn = datastore.newTransaction();
 		try {
 //			if (!token.role.equals("SU")) {
 //				LOG.warning("Insufficient permissions for username: " + data.username);
 //				return Response.status(Status.FORBIDDEN).build();
 //			}
-			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(deleteData.username);
 			if (txn.get(userKey) == null) {
-				LOG.warning("Failed delete attempt for username: " + data.username);
+				LOG.warning("Failed delete attempt for username: " + deleteData.username);
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			txn.delete(userKey);
-			LOG.info("User deleted: " + data.username);
+			LOG.info("User deleted: " + deleteData.username);
 			txn.commit();
 			return Response.ok("{}").build();
 		} catch (Exception e) {
@@ -69,8 +79,14 @@ public class DeleteResource {
 	@POST
 	@Path("/inactiveUsers")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteInactiveUsers(DeleteData data) {
+	public Response deleteInactiveUsers(@Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to delete inactive users");
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
 		Transaction txn = datastore.newTransaction();
 		try {
 			Query<Entity> query = Query.newEntityQueryBuilder()
@@ -97,6 +113,7 @@ public class DeleteResource {
 		}
 	}
 	
+	/**
 	@POST
 	@Path("/invalidTokens")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -126,5 +143,5 @@ public class DeleteResource {
 				txn.rollback();
 			}
 		}
-	}
+	}**/
 }

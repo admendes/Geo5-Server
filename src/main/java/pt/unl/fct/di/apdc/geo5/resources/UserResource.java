@@ -10,6 +10,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -27,7 +29,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
-import pt.unl.fct.di.apdc.geo5.data.JwtData;
 import pt.unl.fct.di.apdc.geo5.data.UserData;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
@@ -47,12 +48,11 @@ public class UserResource {
 	@POST
 	@Path("/get")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getUser(UserData userData) {
+	public Response getUser(UserData userData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
-		JwtData jData = new JwtData(userData.token);
-		AuthToken data = j.getAuthToken(jData);
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to get user: " + userData.username + " by user: " + data.username);
-		if (!j.validToken(jData)) {
+		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
@@ -85,11 +85,11 @@ public class UserResource {
 	@POST
 	@Path("/refreshToken")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response refreshToken(JwtData jData) {
+	public Response refreshToken(@Context HttpHeaders headers) {
 		Jwt j = new Jwt();
-		AuthToken data = j.getAuthToken(jData);
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to refresh token for user: " + data.username);
-		if (!j.validToken(jData)) {
+		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
@@ -101,11 +101,11 @@ public class UserResource {
 	@POST
 	@Path("/listActive")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response listActiveUsers(JwtData jData) {
+	public Response listActiveUsers(@Context HttpHeaders headers) {
 		Jwt j = new Jwt();
-		AuthToken data = j.getAuthToken(jData);
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to list active users");
-		if (!j.validToken(jData)) {
+		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
@@ -125,11 +125,11 @@ public class UserResource {
 	@POST
 	@Path("/last24hlogins")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response last24hlogins(JwtData jData) {
+	public Response last24hlogins(@Context HttpHeaders headers) {
 		Jwt j = new Jwt();
-		AuthToken data = j.getAuthToken(jData);
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to get last 24h logins");
-		if (!j.validToken(jData)) {
+		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}

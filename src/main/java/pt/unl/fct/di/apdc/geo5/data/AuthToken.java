@@ -51,7 +51,8 @@ public class AuthToken {
     public boolean validToken() {
         return validField(this.username) &&
                 validField(this.tokenID) &&
-                validData();
+                validData() &&
+                !expiredToken();
     }
    
     private boolean validField(String value) {
@@ -60,5 +61,9 @@ public class AuthToken {
     
     private boolean validData() {
         return this.creationData < this.expirationData;
+    }
+    
+    private boolean expiredToken() {
+    	return System.currentTimeMillis() >= this.expirationData;
     }
 }

@@ -6,6 +6,8 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -22,7 +24,6 @@ import com.google.gson.JsonObject;
 import pt.unl.fct.di.apdc.geo5.data.AddGeoSpotData;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.GeoSpotData;
-import pt.unl.fct.di.apdc.geo5.data.JwtData;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
 @Path("/geoSpot")
@@ -39,12 +40,11 @@ public class GeoSpotResource {
 	@POST
 	@Path("/submit")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response submitRoute(AddGeoSpotData geoSpotData) {
+	public Response submitRoute(AddGeoSpotData geoSpotData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
-		JwtData jData = new JwtData(geoSpotData.token);
-		AuthToken data = j.getAuthToken(jData);
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to submit GeoSpot: " + geoSpotData.geoSpotName + " from user: " + data.username);
-		if (!j.validToken(jData)) {
+		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}		
@@ -87,12 +87,11 @@ public class GeoSpotResource {
 	@POST
 	@Path("/get")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getGeoSpot(GeoSpotData geoSpotData) {
+	public Response getGeoSpot(GeoSpotData geoSpotData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
-		JwtData jData = new JwtData(geoSpotData.token);
-		AuthToken data = j.getAuthToken(jData);
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to get GeoSpot: " + geoSpotData.geoSpotName + " by user: " + data.username);
-		if (!j.validToken(jData)) {
+		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}

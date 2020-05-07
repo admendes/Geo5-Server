@@ -6,18 +6,16 @@ public class AddGeoSpotData {
 	public String geoSpotName;
 	public String description;
 	public boolean isActive;
-	public String token;
 	
 	public AddGeoSpotData() {
 		
 	}
 	
-	public AddGeoSpotData(PointerData location, String username, String geoSpotName, String description, boolean isActive, String token) {
+	public AddGeoSpotData(PointerData location, String username, String geoSpotName, String description, boolean isActive) {
 		this.location = location;
 		this.geoSpotName = geoSpotName;
 		this.description = description;
 		this.isActive = isActive;
-		this.token = token;
 	}
 	
 	private boolean validField(String value) {

@@ -8,7 +8,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
-import pt.unl.fct.di.apdc.geo5.data.JwtData;
 
 public class Jwt {
 
@@ -31,9 +30,12 @@ public class Jwt {
 		return token;
 	}
 	
-	public AuthToken getAuthToken(JwtData jData) {
+	/**
+	 * Extrai a classe AuthToken do token jwt
+	 */
+	public AuthToken getAuthToken(String token) {
 		byte[] decodedSecret = getDecoded(SECRET);
-		Claims parseClaimsJws = Jwts.parser().setSigningKey(decodedSecret).parseClaimsJws(jData.token).getBody();
+		Claims parseClaimsJws = Jwts.parser().setSigningKey(decodedSecret).parseClaimsJws(token).getBody();
 		final ObjectMapper mapper = new ObjectMapper();
 		return mapper.convertValue(parseClaimsJws.get("token"), AuthToken.class);
 	}
@@ -43,9 +45,12 @@ public class Jwt {
 		return decodedSecret;
 	}
 	
-	public boolean validToken(JwtData jData) {
-		AuthToken data = getAuthToken(jData);
+	/**
+	 * Recebe o token, cria outro igual, verifica se as assinaturas sao iguais e se o token e valido
+	 */
+	public boolean validToken(String token) {
+		AuthToken data = getAuthToken(token);
 		String verification = generateJwtToken(data);
-		return jData.token.equals(verification) && data.validToken();
+		return token.equals(verification) && data.validToken();
 	}
 }

@@ -7,19 +7,17 @@ public class AddRouteData {
 	public String routeName;
 	public String description;
 	public boolean isActive;
-	public String token;
 	
 	public AddRouteData() {
 		
 	}
 	
-	public AddRouteData(PointerData start, PointerData end, String name, String username, String description, boolean isActive, String token) {
+	public AddRouteData(PointerData start, PointerData end, String name, String username, String description, boolean isActive) {
 		this.start = start;
 		this.end = end;
 		this.routeName = name;
 		this.description = description;
 		this.isActive = isActive;
-		this.token = token;
 	}
 	
 	private boolean validField(String value) {

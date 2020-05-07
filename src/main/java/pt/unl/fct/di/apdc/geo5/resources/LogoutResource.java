@@ -6,13 +6,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
-import pt.unl.fct.di.apdc.geo5.data.JwtData;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
 @Path("/logout")
@@ -28,11 +28,11 @@ public class LogoutResource {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doLogout(JwtData jData) {
+	public Response doLogout(@Context HttpHeaders headers) {
 		Jwt j = new Jwt();
-		AuthToken data = j.getAuthToken(jData);
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to logout user: " + data.username);
-        if(j.validToken(jData)) {
+        if(j.validToken(headers.getHeaderString("token"))) {
         	//nao faz nada??????
 			LOG.info("User '" + data.username + "' logged out successfully.");
 			return Response.ok("{}").build();
