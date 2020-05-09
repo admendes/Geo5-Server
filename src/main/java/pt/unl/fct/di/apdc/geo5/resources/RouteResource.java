@@ -1,5 +1,9 @@
 package pt.unl.fct.di.apdc.geo5.resources;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -12,12 +16,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.Transaction;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -124,4 +134,48 @@ public class RouteResource {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	
+	
+	@POST
+	@Path("/user")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response getRoutesOfUser(@Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to get routes from user: " + data.username);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+					
+			Query<Entity> query = Query.newEntityQueryBuilder()
+					.setKind("Route")
+					.setFilter(PropertyFilter.eq("route_owner", data.username))
+					.build();
+			
+			QueryResults<Entity> logs = datastore.run(query);
+			
+			List<JsonObject> dataRoute = new ArrayList();
+			logs.forEachRemaining(r->{
+				
+				JsonObject result = new JsonObject();
+		        
+				result.addProperty("route_name", r.getKey().getName());
+		        result.addProperty("route_owner", r.getString("route_owner"));
+		        result.addProperty("route_description", r.getString("route_description"));
+		        result.addProperty("route_start_lat", r.getLong("route_start_lat"));
+		        result.addProperty("route_start_lon", r.getLong("route_start_lon"));
+		        result.addProperty("route_end_lat", r.getLong("route_end_lat"));
+		        result.addProperty("route_end_lon", r.getLong("route_end_lon"));
+		        result.addProperty("route_creation_time", r.getTimestamp("route_creation_time").toString());
+		        result.addProperty("active_route", r.getBoolean("active_route"));
+		        
+				dataRoute.add( result );
+				});
+			return Response.ok(g.toJson(dataRoute)).build();
+		}	
+	
+	
+	
 }
