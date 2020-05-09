@@ -43,7 +43,7 @@ public class RouteResource {
 	public Response submitRoute(AddRouteData routeData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
-		LOG.fine("Attempt to submit route: " + routeData.routeName + " from user: " + data.username);
+		LOG.fine("Attempt to submit route: " + routeData.title + " from user: " + data.username);
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
@@ -53,25 +53,25 @@ public class RouteResource {
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
-			Key routeKey = datastore.newKeyFactory().setKind("Route").newKey(routeData.routeName);
+			Key routeKey = datastore.newKeyFactory().setKind("Route").newKey(routeData.title);
 			Entity route = datastore.get(routeKey);
 			if (route != null) {
 				txn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Route already exists.").build();
 			} else {
 				route = Entity.newBuilder(routeKey)
-						.set("route_name", routeData.routeName)
+						.set("route_name", routeData.title)
 						.set("route_owner", data.username)
 						.set("route_description", routeData.description)
-						.set("route_start_lat", routeData.start.lat)
-						.set("route_start_lon", routeData.start.lon)
-						.set("route_end_lat", routeData.end.lat)
-						.set("route_end_lon", routeData.end.lon)
+						.set("route_start_lat", routeData.origin.lat)
+						.set("route_start_lon", routeData.origin.lng)
+						.set("route_end_lat", routeData.destination.lat)
+						.set("route_end_lon", routeData.destination.lng)
 						.set("route_creation_time", Timestamp.now())
 						.set("active_route", true)
 						.build();
 				txn.add(route);
-				LOG.info("Route registered " + routeData.routeName + "from user: " + data.username);
+				LOG.info("Route registered " + routeData.title + "from user: " + data.username);
 				txn.commit();
 				return Response.ok("{}").build();
 			}

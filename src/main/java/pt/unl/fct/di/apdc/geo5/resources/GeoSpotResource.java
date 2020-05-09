@@ -65,7 +65,7 @@ public class GeoSpotResource {
 						.set("geoSpot_description", geoSpotData.description)
 						.set("geoSpot_creation_time", Timestamp.now())
 						.set("geoSpot_lat", geoSpotData.location.lat)
-						.set("geoSpot_lon", geoSpotData.location.lon)
+						.set("geoSpot_lon", geoSpotData.location.lng)
 						.set("active_geoSpot", true)
 						.build();
 				txn.add(geoSpot);

@@ -1,11 +1,19 @@
 =\=\=\=\=\=\=
 <<<<<<<=HEAD
 >>>>>>>=993e9fa8397637a774b553fa96425490f14e950f
+<<<<<<< HEAD
 account.email=ad.mendes@campus.fct.unl.pt
+=======
+account.email=a.denisov@campus.fct.unl.pt
+>>>>>>> e7ddf119c0ae4ea19d5a0b5badb95a05c20555ca
 eclipse.preferences.version=1
 include.optional.configuration.files=true
 project.bucket=
 project.id=brave-idea-270314
 project.previousVersion.stop=true
 project.promote=true
+<<<<<<< HEAD
 project.version=directionstest
+=======
+project.version=imagesssanimation
+>>>>>>> e7ddf119c0ae4ea19d5a0b5badb95a05c20555ca
