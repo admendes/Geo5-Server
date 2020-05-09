@@ -6,18 +6,16 @@ public class AddRouteData {
 	public PointerData end;
 	public String routeName;
 	public String description;
-	public boolean isActive;
 	
 	public AddRouteData() {
 		
 	}
 	
-	public AddRouteData(PointerData start, PointerData end, String name, String username, String description, boolean isActive) {
+	public AddRouteData(PointerData start, PointerData end, String name, String username, String description) {
 		this.start = start;
 		this.end = end;
 		this.routeName = name;
 		this.description = description;
-		this.isActive = isActive;
 	}
 	
 	private boolean validField(String value) {
