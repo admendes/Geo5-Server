@@ -2,16 +2,16 @@ package pt.unl.fct.di.apdc.geo5.data;
 
 public class PointerData {
 	
-	public long lat;
-	public long lon;
+	public String lat;
+	public String lng;
 	
 	public PointerData() {
 		
 	}
 	
-	public PointerData(long lat, long lon) {
+	public PointerData(String lat, String lng) {
 		this.lat = lat;
-		this.lon = lon;
+		this.lng = lng;
 	}
 
 }
