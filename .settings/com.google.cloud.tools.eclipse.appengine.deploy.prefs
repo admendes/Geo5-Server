@@ -13,7 +13,11 @@ project.id=brave-idea-270314
 project.previousVersion.stop=true
 project.promote=true
 <<<<<<< HEAD
+<<<<<<< HEAD
 project.version=directionstest
 =======
 project.version=imagesssanimation
 >>>>>>> e7ddf119c0ae4ea19d5a0b5badb95a05c20555ca
+=======
+project.version=get-routes-of-user-get
+>>>>>>> 6bc13a4657838215ec42f607a58b96b7ac5fa36d
