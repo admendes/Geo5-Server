@@ -2,15 +2,15 @@ package pt.unl.fct.di.apdc.geo5.data;
 
 public class RouteData {
 	
-	public String routeName;
+	public String id;
 	
 	public RouteData() {
 		
 	}
 	
-	public RouteData(String routeName) {
+	public RouteData(String id) {
 		
-			this.routeName = routeName;
+			this.id = id;
 	}
 	
 }

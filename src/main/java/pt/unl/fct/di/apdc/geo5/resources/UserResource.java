@@ -153,4 +153,5 @@ public class UserResource {
 		});
 		return Response.ok(g.toJson(loginDates)).build();
 	}
+
 }

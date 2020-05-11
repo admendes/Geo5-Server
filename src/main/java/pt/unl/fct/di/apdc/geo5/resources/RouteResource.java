@@ -1,8 +1,6 @@
 package pt.unl.fct.di.apdc.geo5.resources;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -16,8 +14,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -26,7 +22,6 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.Transaction;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -63,7 +58,7 @@ public class RouteResource {
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
-			Key routeKey = datastore.newKeyFactory().setKind("Route").newKey(routeData.title);
+			Key routeKey = datastore.newKeyFactory().setKind("Route").newKey(routeData.id);
 			Entity route = datastore.get(routeKey);
 			if (route != null) {
 				txn.rollback();
@@ -102,16 +97,16 @@ public class RouteResource {
 	public Response getRoute(RouteData routeData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
-		LOG.fine("Attempt to get route: " + routeData.routeName + " by user: " + data.username);
+		LOG.fine("Attempt to get route with id: " + routeData.id + " by user: " + data.username);
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
-		if (routeData.routeName.equals("")) {
-			return Response.status(Status.BAD_REQUEST).entity("Please enter a route name.").build();
+		if (routeData.id.equals("")) {
+			return Response.status(Status.BAD_REQUEST).entity("Please enter a valid id.").build();
 		}
 		try {
-			Key routeKey = datastore.newKeyFactory().setKind("Route").newKey(routeData.routeName);
+			Key routeKey = datastore.newKeyFactory().setKind("Route").newKey(routeData.id);
 			Entity r = datastore.get(routeKey);
 			if (r == null) {
 				return Response.status(Status.BAD_REQUEST).entity("Route does not exist.").build();
@@ -120,13 +115,13 @@ public class RouteResource {
 		        result.addProperty("route_name", r.getKey().getName());
 		        result.addProperty("route_owner", r.getString("route_owner"));
 		        result.addProperty("route_description", r.getString("route_description"));
-		        result.addProperty("route_start_lat", r.getLong("route_start_lat"));
-		        result.addProperty("route_start_lon", r.getLong("route_start_lon"));
-		        result.addProperty("route_end_lat", r.getLong("route_end_lat"));
-		        result.addProperty("route_end_lon", r.getLong("route_end_lon"));
+		        result.addProperty("route_start_lat", r.getString("route_start_lat"));
+		        result.addProperty("route_start_lon", r.getString("route_start_lon"));
+		        result.addProperty("route_end_lat", r.getString("route_end_lat"));
+		        result.addProperty("route_end_lon", r.getString("route_end_lon"));
 		        result.addProperty("route_creation_time", r.getTimestamp("route_creation_time").toString());
 		        result.addProperty("active_route", r.getBoolean("active_route"));
-				LOG.info("Got route: " + routeData.routeName + " for user: " + data.username);
+				LOG.info("Got route with id: " + routeData.id + " for user: " + data.username);
 				return Response.ok(g.toJson(result)).build();
 			}
 		} catch (Exception e) {
@@ -156,7 +151,7 @@ public class RouteResource {
 			
 			QueryResults<Entity> logs = datastore.run(query);
 			
-			List<JsonObject> dataRoute = new ArrayList();
+			List<JsonObject> dataRoute = new ArrayList<JsonObject>();
 			logs.forEachRemaining(r->{
 				
 				JsonObject result = new JsonObject();
@@ -164,10 +159,10 @@ public class RouteResource {
 				result.addProperty("route_name", r.getKey().getName());
 		        result.addProperty("route_owner", r.getString("route_owner"));
 		        result.addProperty("route_description", r.getString("route_description"));
-		        result.addProperty("route_start_lat", r.getLong("route_start_lat"));
-		        result.addProperty("route_start_lon", r.getLong("route_start_lon"));
-		        result.addProperty("route_end_lat", r.getLong("route_end_lat"));
-		        result.addProperty("route_end_lon", r.getLong("route_end_lon"));
+		        result.addProperty("route_start_lat", r.getString("route_start_lat"));
+		        result.addProperty("route_start_lon", r.getString("route_start_lon"));
+		        result.addProperty("route_end_lat", r.getString("route_end_lat"));
+		        result.addProperty("route_end_lon", r.getString("route_end_lon"));
 		        result.addProperty("route_creation_time", r.getTimestamp("route_creation_time").toString());
 		        result.addProperty("active_route", r.getBoolean("active_route"));
 		        
