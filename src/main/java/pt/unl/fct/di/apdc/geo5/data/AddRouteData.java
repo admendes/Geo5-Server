@@ -1,7 +1,5 @@
 package pt.unl.fct.di.apdc.geo5.data;
 
-import java.util.UUID;
-
 public class AddRouteData {
 
 	public String id;
@@ -18,13 +16,15 @@ public class AddRouteData {
 	}
 	
 
-	public AddRouteData(PointerData origin, PointerData destination, String title, String username, String description, boolean visible) {
-		this.id = UUID.randomUUID().toString();
+	public AddRouteData(String id, PointerData origin, PointerData destination, String title, String username, String description, String travelMode, boolean visible) {
+		this.id = id;
 		this.origin = origin;
 		this.destination = destination;
 		this.title = title;
 		this.description = description;
 		this.visible = visible;
+		this.travelMode = travelMode;
+		this.username = username;
 	}
 	
 	private boolean validField(String value) {
