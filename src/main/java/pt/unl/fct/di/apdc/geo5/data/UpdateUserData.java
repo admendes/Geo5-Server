@@ -11,14 +11,13 @@ public class UpdateUserData {
 	public String country;
 	public String role;
 	public boolean isActive;
-	public boolean photoUpload;
 
 	public UpdateUserData() {
 		
 	}
 	
 	public UpdateUserData(String username, String name, String email, String password, String role, String street, String place, 
-			String country, boolean isActive, boolean photoUpload) {
+			String country, boolean isActive) {
 		
 			this.username = username;
 			this.name = name;
@@ -33,7 +32,6 @@ public class UpdateUserData {
 			this.place = place;
 			this.country = country;
 			this.isActive = isActive;
-			this.photoUpload = photoUpload;
 	}
 	
 	private boolean validField(String value) {
