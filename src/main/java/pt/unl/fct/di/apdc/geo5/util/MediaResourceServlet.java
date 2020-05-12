@@ -20,8 +20,7 @@ public class MediaResourceServlet extends HttpServlet {
 	/**
 	 * 
 	 */
-	private final String BUCKET = "apdc-geoproj.appspot.com" + 
-			"";
+	private final String BUCKET = "apdc-geoproj.appspot.com";
 	
 	
 	public MediaResourceServlet() {
