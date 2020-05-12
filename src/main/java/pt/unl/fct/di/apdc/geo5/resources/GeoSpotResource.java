@@ -1,5 +1,7 @@
 package pt.unl.fct.di.apdc.geo5.resources;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -17,7 +19,10 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.Transaction;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -119,5 +124,29 @@ public class GeoSpotResource {
 			LOG.severe(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
+	}
+	
+	@POST
+	@Path("/listActive")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response listActiveGeoSpots(@Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to list active GeoSpots");
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		Query<Entity> query = Query.newEntityQueryBuilder()
+				.setKind("GeoSpot")
+				.setFilter(PropertyFilter.eq("active_geoSpot", true))
+				.build();
+		QueryResults<Entity> logs = datastore.run(query);
+		List<Entity> activeGeoSpotList = new ArrayList<Entity>();
+		logs.forEachRemaining(activeGeoSpotLog -> {
+			activeGeoSpotList.add(activeGeoSpotLog);
+		});
+		LOG.info("Got list of active GeoSpots");
+		return Response.ok(g.toJson(activeGeoSpotList)).build();
 	}
 }

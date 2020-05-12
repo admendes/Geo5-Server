@@ -26,7 +26,10 @@ import com.google.gson.Gson;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.DeleteData;
+import pt.unl.fct.di.apdc.geo5.util.Access;
+import pt.unl.fct.di.apdc.geo5.util.AccessMap;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
+import pt.unl.fct.di.apdc.geo5.util.Logs;
 
 @Path("/delete")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -45,24 +48,24 @@ public class DeleteResource {
 	public Response doDelete(DeleteData deleteData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
-		LOG.fine("Attempt to delete user: " + deleteData.username);
+		LOG.fine(Logs.LOG_DELETE_ATTEMPT + deleteData.username);
 		if (!j.validToken(headers.getHeaderString("token"))) {
-			LOG.warning("Invalid token for username: " + data.username);
+			LOG.warning(Logs.LOG_INVALID_TOKEN + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
-//			if (!token.role.equals("SU")) {
-//				LOG.warning("Insufficient permissions for username: " + data.username);
-//				return Response.status(Status.FORBIDDEN).build();
-//			}
+			if (AccessMap.hasAccess(Access.PERMISSION_DELETE_USER, data.username)) {
+				LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+				return Response.status(Status.FORBIDDEN).build();
+			}
 			Key userKey = datastore.newKeyFactory().setKind("User").newKey(deleteData.username);
 			if (txn.get(userKey) == null) {
-				LOG.warning("Failed delete attempt for username: " + deleteData.username);
+				LOG.warning(Logs.LOG_DELETE_FAIL + deleteData.username);
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			txn.delete(userKey);
-			LOG.info("User deleted: " + deleteData.username);
+			LOG.info(Logs.LOG_DELETE_SUCCESS + deleteData.username);
 			txn.commit();
 			return Response.ok("{}").build();
 		} catch (Exception e) {
@@ -85,6 +88,10 @@ public class DeleteResource {
 		LOG.fine("Attempt to delete inactive users");
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (AccessMap.hasAccess(Access.PERMISSION_DELETE_INACTIVE_USERS, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
 		Transaction txn = datastore.newTransaction();

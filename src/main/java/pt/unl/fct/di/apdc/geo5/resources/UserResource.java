@@ -6,9 +6,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -118,7 +121,7 @@ public class UserResource {
 		logs.forEachRemaining(activeUsersLog -> {
 			activeUsersList.add(activeUsersLog);
 		});
-		LOG.info("Inactive users deleted");
+		LOG.info("Got list of active users");
 		return Response.ok(g.toJson(activeUsersList)).build();
 	}
 	
@@ -152,6 +155,37 @@ public class UserResource {
 			loginDates.add(userLog.getTimestamp("user_login_time").toDate());
 		});
 		return Response.ok(g.toJson(loginDates)).build();
+	}
+	
+	@POST
+	@Path("/{username}/picture")
+	public Response getUserPicture(@Context HttpServletRequest req, @Context HttpServletResponse resp, 
+			@PathParam("username") String username, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.info("Attempting to get user picture: " + username);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		try {
+			Key picturerKey = datastore.newKeyFactory().setKind("UserProfilePicture").newKey(username);
+			Entity p = datastore.get(picturerKey);
+			if (p == null) {
+				return Response.status(Status.BAD_REQUEST).entity("Profile picture does not exist.").build();
+			} else {
+		        JsonObject result = new JsonObject();
+		        result.addProperty("user_name", p.getKey().getName());
+		        result.addProperty("file_name", p.getString("file_name"));
+		        result.addProperty("file_type", p.getString("file_type"));
+		        result.addProperty("file_upload_date", p.getTimestamp("file_upload_date").toString());
+				LOG.info("User: " + data.username + " Got user profile picture for user: " + username);
+				return Response.ok(g.toJson(result)).build();
+			}
+		} catch (Exception e) {
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
 }

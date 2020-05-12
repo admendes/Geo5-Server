@@ -19,6 +19,7 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Transaction;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
@@ -55,6 +56,17 @@ public class UpdateResource {
 				LOG.warning("Failed update attempt for username: " + data.username);
 				return Response.status(Status.FORBIDDEN).build();
 			}
+			if(updateData.photoUpload) {
+				Key pictureKey = datastore.newKeyFactory()
+						.addAncestors(PathElement.of("User", data.username))
+						.setKind("UserProfilePicture")
+						.newKey(data.username);
+				Entity fileUpload = datastore.get(pictureKey);
+				fileUpload = Entity.newBuilder(pictureKey)
+						.set("file_name", "PHOTO")
+						.build();
+				txn.add(fileUpload);
+			}	
 			Entity user = datastore.get(userKey);
 				user = Entity.newBuilder(userKey)
 						.set("user_name", updateData.name)
