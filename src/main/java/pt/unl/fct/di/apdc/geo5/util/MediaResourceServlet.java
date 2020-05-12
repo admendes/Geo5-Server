@@ -20,7 +20,7 @@ public class MediaResourceServlet extends HttpServlet {
 	/**
 	 * 
 	 */
-	private final String BUCKET = "brave-idea-270314.appspot.com";
+	private final String BUCKET = "apdc-geoproj.ey.r.appspot.com";
 	
 	
 	public MediaResourceServlet() {
