@@ -1,6 +1,8 @@
 package pt.unl.fct.di.apdc.geo5.resources;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -19,16 +21,20 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.Transaction;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
+import pt.unl.fct.di.apdc.geo5.data.PointerData;
 import pt.unl.fct.di.apdc.geo5.data.RouteData;
 import pt.unl.fct.di.apdc.geo5.data.AddRouteData;
+import pt.unl.fct.di.apdc.geo5.data.AddRouteDataV2;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
 @Path("/route")
@@ -93,6 +99,67 @@ public class RouteResource {
 	}
 	
 	@POST
+	@Path("/submitV2")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response submitRouteV2(AddRouteDataV2 routeData, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to submit route: " + routeData.title + " from user: " + data.username);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!routeData.validRegistration()) {
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+		Transaction txn = datastore.newTransaction();
+		try {
+			Key routeKey = datastore.newKeyFactory().setKind("Route").newKey(routeData.id);
+			Entity route = datastore.get(routeKey);
+			if (route != null) {
+				txn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Route already exists.").build();
+			} else {
+				route = Entity.newBuilder(routeKey)
+						.set("route_name", routeData.title)
+						.set("route_owner", data.username)
+						.set("route_description", routeData.description)
+						.set("route_travel_mode", routeData.travelMode)
+						.set("route_start_lat", routeData.origin.lat)
+						.set("route_start_lon", routeData.origin.lng)
+						.set("route_end_lat", routeData.destination.lat)
+						.set("route_end_lon", routeData.destination.lng)
+						.set("route_creation_time", Timestamp.now())
+						.set("active_route", true)
+						.build();
+				for (PointerData i : routeData.intermidiatePoints) {
+					Key intPointsKey = datastore.allocateId(
+							datastore.newKeyFactory()
+							.addAncestors(PathElement.of("Route", routeData.id))
+							.setKind("RouteIntermidiatePoint").newKey());
+					Entity intPoint = Entity.newBuilder(intPointsKey)
+							.set("point_lat", i.lat)
+							.set("point_lon", i.lng)
+							.build();		
+					txn.add(intPoint);
+				}
+				txn.add(route);
+				LOG.info("Route registered " + routeData.title + "from user: " + data.username);
+				txn.commit();
+				return Response.ok("{}").build();
+			}
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}
+	}
+	
+	@POST
 	@Path("/get")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response getRoute(RouteData routeData, @Context HttpHeaders headers) {
@@ -130,6 +197,30 @@ public class RouteResource {
 			LOG.severe(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
+	}
+	
+	@POST
+	@Path("/getV2")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response getRouteV2(RouteData routeData, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to get route with id: " + routeData.id + " by user: " + data.username);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		Query<Entity> query = Query.newEntityQueryBuilder()
+				.setKind("RouteIntermidiatePoint")
+				.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind("Route").newKey(routeData.id)))
+				.build();
+		QueryResults<Entity> logs = datastore.run(query);
+		List<PointerData> intermidiatePoints = new ArrayList<PointerData>();
+		logs.forEachRemaining(intermidiatePointsLog -> {
+			PointerData p = new PointerData(intermidiatePointsLog.getString("point_lat"), intermidiatePointsLog.getString("point_lon"));
+			intermidiatePoints.add(p);
+		});
+		return Response.ok(g.toJson(intermidiatePoints)).build();
 	}
 	
 	@POST
