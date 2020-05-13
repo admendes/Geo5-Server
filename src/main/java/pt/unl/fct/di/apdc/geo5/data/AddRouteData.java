@@ -13,12 +13,14 @@ public class AddRouteData {
     public PointerData origin;
     public PointerData destination;
     public Set<PointerData> intermidiatePoints = new HashSet<PointerData>();
-
+    public boolean visible;
+    public boolean type;
+    
 	public AddRouteData() {
 		
 	}
 	
-	public AddRouteData(String id, PointerData origin, PointerData destination, String title, String username, String description, String travelMode) {
+	public AddRouteData(String id, PointerData origin, PointerData destination, String title, String username, String description, String travelMode,boolean visible) {
 		this.id = id;
 		this.origin = origin;
 		this.destination = destination;
@@ -26,10 +28,12 @@ public class AddRouteData {
 		this.description = description;
 		this.travelMode = travelMode;
 		this.username = username;
+		this.visible = visible;
+		this.type = false;
 	}
 	
 	public AddRouteData(String id, PointerData origin, PointerData destination, String title, String username, 
-			String description, String travelMode, Set<PointerData> intermidiatePoints) {
+			String description, String travelMode, Set<PointerData> intermidiatePoints,boolean visible) {
 		this.id = id;
 		this.origin = origin;
 		this.destination = destination;
@@ -38,6 +42,8 @@ public class AddRouteData {
 		this.travelMode = travelMode;
 		this.username = username;
 		this.intermidiatePoints = intermidiatePoints;
+		this.visible = visible;
+		this.type = true;
 	}
 	
 	private boolean validField(String value) {

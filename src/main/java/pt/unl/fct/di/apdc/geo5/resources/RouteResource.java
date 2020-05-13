@@ -196,7 +196,8 @@ public class RouteResource {
 						userRoutesLog.getString("route_owner"),
 						userRoutesLog.getString("route_description"),
 						userRoutesLog.getString("route_travel_mode"),
-						getIntermidiatePoints(userRoutesLog.getKey().getName().toString())
+						getIntermidiatePoints(userRoutesLog.getKey().getName().toString()),
+						true
 				);
 			}
 			else {
@@ -207,7 +208,8 @@ public class RouteResource {
 						userRoutesLog.getString("route_name"),
 						userRoutesLog.getString("route_owner"),
 						userRoutesLog.getString("route_description"),
-						userRoutesLog.getString("route_travel_mode")
+						userRoutesLog.getString("route_travel_mode"),
+						true
 				);
 			}
 			userRoutes.add(route);
@@ -246,7 +248,8 @@ public class RouteResource {
 						activeRoutesLog.getString("route_owner"),
 						activeRoutesLog.getString("route_description"),
 						activeRoutesLog.getString("route_travel_mode"),
-						getIntermidiatePoints(activeRoutesLog.getKey().getName().toString())
+						getIntermidiatePoints(activeRoutesLog.getKey().getName().toString()),
+						true
 				);
 			}
 			else {
@@ -257,7 +260,8 @@ public class RouteResource {
 						activeRoutesLog.getString("route_name"),
 						activeRoutesLog.getString("route_owner"),
 						activeRoutesLog.getString("route_description"),
-						activeRoutesLog.getString("route_travel_mode")
+						activeRoutesLog.getString("route_travel_mode"),
+						true
 				);
 			}
 			activeRoutes.add(route);
