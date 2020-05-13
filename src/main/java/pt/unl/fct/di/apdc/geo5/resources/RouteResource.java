@@ -232,37 +232,37 @@ public class RouteResource {
 				.setFilter(PropertyFilter.eq("active_route", true))
 				.build();
 		QueryResults<Entity> logs = datastore.run(query);
-		List<AddRouteData> userRoutes = new ArrayList<AddRouteData>();
-		logs.forEachRemaining(userRoutesLog -> {
-			PointerData start = new PointerData(userRoutesLog.getString("route_start_lat"), userRoutesLog.getString("route_start_lon"));
-			PointerData end = new PointerData(userRoutesLog.getString("route_end_lat"), userRoutesLog.getString("route_end_lon"));
+		List<AddRouteData> activeRoutes = new ArrayList<AddRouteData>();
+		logs.forEachRemaining(activeRoutesLog -> {
+			PointerData start = new PointerData(activeRoutesLog.getString("route_start_lat"), activeRoutesLog.getString("route_start_lon"));
+			PointerData end = new PointerData(activeRoutesLog.getString("route_end_lat"), activeRoutesLog.getString("route_end_lon"));
 			AddRouteData route;
-			if (userRoutesLog.getBoolean("has_intermidiate_points")) {
+			if (activeRoutesLog.getBoolean("has_intermidiate_points")) {
 				route = new AddRouteData(
-						userRoutesLog.getKey().getName().toString(),
+						activeRoutesLog.getKey().getName().toString(),
 						start,
 						end,
-						userRoutesLog.getString("route_name"),
-						userRoutesLog.getString("route_owner"),
-						userRoutesLog.getString("route_description"),
-						userRoutesLog.getString("route_travel_mode"),
-						getIntermidiatePoints(userRoutesLog.getKey().getName().toString())
+						activeRoutesLog.getString("route_name"),
+						activeRoutesLog.getString("route_owner"),
+						activeRoutesLog.getString("route_description"),
+						activeRoutesLog.getString("route_travel_mode"),
+						getIntermidiatePoints(activeRoutesLog.getKey().getName().toString())
 				);
 			}
 			else {
 				route = new AddRouteData(
-						userRoutesLog.getKey().getName().toString(),
+						activeRoutesLog.getKey().getName().toString(),
 						start,
 						end,
-						userRoutesLog.getString("route_name"),
-						userRoutesLog.getString("route_owner"),
-						userRoutesLog.getString("route_description"),
-						userRoutesLog.getString("route_travel_mode")
+						activeRoutesLog.getString("route_name"),
+						activeRoutesLog.getString("route_owner"),
+						activeRoutesLog.getString("route_description"),
+						activeRoutesLog.getString("route_travel_mode")
 				);
 			}
-			userRoutes.add(route);
+			activeRoutes.add(route);
 		});
 		LOG.info("Got list of active routes");
-		return Response.ok(g.toJson(userRoutes)).build();
+		return Response.ok(g.toJson(activeRoutes)).build();
 	}
 }
