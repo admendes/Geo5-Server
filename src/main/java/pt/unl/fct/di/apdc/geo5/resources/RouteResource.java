@@ -1,8 +1,6 @@
 package pt.unl.fct.di.apdc.geo5.resources;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +25,6 @@ import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.Transaction;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -154,31 +151,6 @@ public class RouteResource {
 		}
 	}
 	
-	@POST
-	@Path("/getV2")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getRouteV2(RouteData routeData, @Context HttpHeaders headers) {
-		Jwt j = new Jwt();
-		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
-		LOG.fine("Attempt to get route with id: " + routeData.id + " by user: " + data.username);
-		if (!j.validToken(headers.getHeaderString("token"))) {
-			LOG.warning("Invalid token for username: " + data.username);
-			return Response.status(Status.FORBIDDEN).build();
-		}
-		Query<Entity> query = Query.newEntityQueryBuilder()
-				.setKind("RouteIntermidiatePoint")
-				.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind("Route").newKey(routeData.id)))
-				.build();
-		QueryResults<Entity> logs = datastore.run(query);
-		List<PointerData> intermidiatePoints = new ArrayList<PointerData>();
-		logs.forEachRemaining(intermidiatePointsLog -> {
-			PointerData p = new PointerData(intermidiatePointsLog.getString("point_lat"), intermidiatePointsLog.getString("point_lon"));
-			intermidiatePoints.add(p);
-		});
-		return Response.ok(g.toJson(intermidiatePoints)).build();
-	}
-	
-	
 	public Set<PointerData> getIntermidiatePoints(String id) {
 		Query<Entity> query = Query.newEntityQueryBuilder()
 				.setKind("RouteIntermidiatePoint")
@@ -260,11 +232,37 @@ public class RouteResource {
 				.setFilter(PropertyFilter.eq("active_route", true))
 				.build();
 		QueryResults<Entity> logs = datastore.run(query);
-		List<Entity> activeRoutesList = new ArrayList<Entity>();
-		logs.forEachRemaining(activeRoutesLog -> {
-			activeRoutesList.add(activeRoutesLog);
+		List<AddRouteData> userRoutes = new ArrayList<AddRouteData>();
+		logs.forEachRemaining(userRoutesLog -> {
+			PointerData start = new PointerData(userRoutesLog.getString("route_start_lat"), userRoutesLog.getString("route_start_lon"));
+			PointerData end = new PointerData(userRoutesLog.getString("route_end_lat"), userRoutesLog.getString("route_end_lon"));
+			AddRouteData route;
+			if (userRoutesLog.getBoolean("has_intermidiate_points")) {
+				route = new AddRouteData(
+						userRoutesLog.getKey().getName().toString(),
+						start,
+						end,
+						userRoutesLog.getString("route_name"),
+						userRoutesLog.getString("route_owner"),
+						userRoutesLog.getString("route_description"),
+						userRoutesLog.getString("route_travel_mode"),
+						getIntermidiatePoints(userRoutesLog.getKey().getName().toString())
+				);
+			}
+			else {
+				route = new AddRouteData(
+						userRoutesLog.getKey().getName().toString(),
+						start,
+						end,
+						userRoutesLog.getString("route_name"),
+						userRoutesLog.getString("route_owner"),
+						userRoutesLog.getString("route_description"),
+						userRoutesLog.getString("route_travel_mode")
+				);
+			}
+			userRoutes.add(route);
 		});
 		LOG.info("Got list of active routes");
-		return Response.ok(g.toJson(activeRoutesList)).build();
+		return Response.ok(g.toJson(userRoutes)).build();
 	}
 }
