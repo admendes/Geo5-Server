@@ -1,5 +1,8 @@
 package pt.unl.fct.di.apdc.geo5.data;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class AddRouteData {
 
 	public String id;
@@ -9,22 +12,32 @@ public class AddRouteData {
     public String travelMode;
     public PointerData origin;
     public PointerData destination;
-    public boolean visible;
-	
+    public Set<PointerData> intermidiatePoints = new HashSet<PointerData>();
+
 	public AddRouteData() {
 		
 	}
 	
-
-	public AddRouteData(String id, PointerData origin, PointerData destination, String title, String username, String description, String travelMode, boolean visible) {
+	public AddRouteData(String id, PointerData origin, PointerData destination, String title, String username, String description, String travelMode) {
 		this.id = id;
 		this.origin = origin;
 		this.destination = destination;
 		this.title = title;
 		this.description = description;
-		this.visible = visible;
 		this.travelMode = travelMode;
 		this.username = username;
+	}
+	
+	public AddRouteData(String id, PointerData origin, PointerData destination, String title, String username, 
+			String description, String travelMode, Set<PointerData> intermidiatePoints) {
+		this.id = id;
+		this.origin = origin;
+		this.destination = destination;
+		this.title = title;
+		this.description = description;
+		this.travelMode = travelMode;
+		this.username = username;
+		this.intermidiatePoints = intermidiatePoints;
 	}
 	
 	private boolean validField(String value) {
