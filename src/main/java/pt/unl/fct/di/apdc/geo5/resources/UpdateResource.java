@@ -60,13 +60,13 @@ public class UpdateResource {
 						.set("user_name", updateData.name)
 						.set("user_pwd", DigestUtils.sha512Hex(updateData.password))
 						.set("user_email", updateData.email)
-						.set("user_role", updateData.role)
+						.set("user_role", user.getString("user_role"))
 						.set("user_creation_time", user.getTimestamp("user_creation_time"))
 						.set("user_last_update_time", Timestamp.now())
 						.set("user_street", updateData.street)
 						.set("user_place", updateData.place)
 						.set("user_country", updateData.country)
-						.set("active_account", updateData.isActive)
+						.set("active_account", user.getString("active_account"))
 						.set("activation_code", user.getString("activation_code"))
 						.build();
 				txn.update(user);
