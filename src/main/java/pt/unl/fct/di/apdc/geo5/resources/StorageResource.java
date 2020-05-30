@@ -81,8 +81,7 @@ public class StorageResource {
 			if (txn.isActive()) {
 				txn.rollback();
 			}
-		}
-		
+		}	
 	}
 	
 	@POST

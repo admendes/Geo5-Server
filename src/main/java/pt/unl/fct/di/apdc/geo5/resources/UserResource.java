@@ -26,11 +26,13 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.Transaction;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import pt.unl.fct.di.apdc.geo5.data.ActivateAccountData;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.UserData;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
@@ -53,6 +55,8 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response getUser(UserData userData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
+		LOG.info("token: " + headers.getHeaderString("token"));
+
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to get user: " + userData.username + " by user: " + data.username);
 		if (!j.validToken(headers.getHeaderString("token"))) {
@@ -82,6 +86,52 @@ public class UserResource {
 		} catch (Exception e) {
 			LOG.severe(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+	
+	@POST
+	@Path("/activateAccount")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response activateAccount(ActivateAccountData activateData) {
+		Transaction txn = datastore.newTransaction();
+		try {
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(activateData.username);
+			if (txn.get(userKey) == null) {
+				LOG.warning("Failed activate attempt for username: " + activateData.username);
+				return Response.status(Status.FORBIDDEN).build();
+			}
+			Entity u = datastore.get(userKey);
+			if (!u.getString("activation_code").equals(activateData.activationCode)) {
+				LOG.warning("Invalid activation code for username: " + activateData.username);
+				return Response.status(Status.FORBIDDEN).build();
+			}
+			else {
+				u = Entity.newBuilder(userKey)
+						.set("user_name", u.getString("user_name"))
+						.set("user_pwd", u.getString("user_pwd"))
+						.set("user_email", u.getString("user_email"))
+						.set("user_role", u.getString("user_role"))
+						.set("user_creation_time", u.getTimestamp("user_creation_time"))
+						.set("user_last_update_time", Timestamp.now())
+						.set("user_street", u.getString("user_street"))
+						.set("user_place", u.getString("user_place"))
+						.set("user_country", u.getString("user_country"))
+						.set("active_account", true)
+						.set("activation_code", u.getString("activation_code"))
+						.build();
+				txn.update(u);
+				LOG.info("Activated user: " + activateData.username + " with activation code: " + activateData.activationCode);
+				txn.commit();
+				return Response.ok("{}").build();
+			}
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
 		}
 	}
 	

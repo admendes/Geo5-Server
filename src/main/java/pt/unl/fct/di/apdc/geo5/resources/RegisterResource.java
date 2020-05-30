@@ -1,5 +1,6 @@
 package pt.unl.fct.di.apdc.geo5.resources;
 
+import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -16,6 +17,7 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
+import pt.unl.fct.di.apdc.geo5.util.Email;
 import pt.unl.fct.di.apdc.geo5.data.RegisterData;
 
 import com.google.cloud.Timestamp;
@@ -37,6 +39,7 @@ public class RegisterResource {
 	public RegisterResource() { }
 
 	@POST
+	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response doRegistration(RegisterData data) {
 		LOG.fine("Attempt to register user: " + data.username);
@@ -65,6 +68,53 @@ public class RegisterResource {
 						.set("user_country", "")
 						.set("active_account", true)
 						.build();
+				txn.add(user);
+				LOG.info("User registered " + data.username);
+				txn.commit();
+				return Response.ok("{}").build();
+			}
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}
+	}
+	
+	@POST
+	@Path("/confirm")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response doRegistrationEmail(RegisterData data) {
+		LOG.fine("Attempt to register user: " + data.username);
+		
+		if (!data.validRegistration()) {
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+		
+		Transaction txn = datastore.newTransaction();
+		try {
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+			Entity user = datastore.get(userKey);
+			if (user != null) {
+				txn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User already exists.").build();
+			} else {
+		         Random rand = new Random();
+		         String activationCode = String.format("%04d", rand.nextInt(10000));
+				user = Entity.newBuilder(userKey)
+						.set("user_name", data.name)
+						.set("user_pwd", DigestUtils.sha512Hex(data.password))
+						.set("user_email", data.email)
+						.set("user_role", "User")
+						.set("user_creation_time", Timestamp.now())
+						.set("user_last_update_time", Timestamp.now())
+						.set("user_street", "")
+						.set("user_place", "")
+						.set("user_country", "")
+						.set("active_account", false)
+						.set("activation_code", activationCode)
+						.build();
+				// Send confirmation email
+				Email.sendEmail(data.email, activationCode);
 				txn.add(user);
 				LOG.info("User registered " + data.username);
 				txn.commit();

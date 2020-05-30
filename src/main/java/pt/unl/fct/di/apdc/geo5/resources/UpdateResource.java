@@ -67,6 +67,7 @@ public class UpdateResource {
 						.set("user_place", updateData.place)
 						.set("user_country", updateData.country)
 						.set("active_account", updateData.isActive)
+						.set("activation_code", user.getString("activation_code"))
 						.build();
 				txn.update(user);
 				LOG.info("User information changed: " + data.username);
