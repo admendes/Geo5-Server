@@ -53,12 +53,12 @@ public class DeleteResource {
 			LOG.warning(Logs.LOG_INVALID_TOKEN + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_DELETE_USER, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
 		Transaction txn = datastore.newTransaction();
 		try {
-			if (AccessMap.hasAccess(Access.PERMISSION_DELETE_USER, data.username)) {
-				LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
-				return Response.status(Status.FORBIDDEN).build();
-			}
 			Key userKey = datastore.newKeyFactory().setKind("User").newKey(deleteData.username);
 			if (txn.get(userKey) == null) {
 				LOG.warning(Logs.LOG_DELETE_FAIL + deleteData.username);
@@ -90,7 +90,7 @@ public class DeleteResource {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
-		if (AccessMap.hasAccess(Access.PERMISSION_DELETE_INACTIVE_USERS, data.username)) {
+		if (!AccessMap.hasAccess(Access.PERMISSION_DELETE_INACTIVE_USERS, data.username)) {
 			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}

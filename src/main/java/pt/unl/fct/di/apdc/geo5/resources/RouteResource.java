@@ -32,8 +32,13 @@ import com.google.gson.JsonObject;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.PointerData;
 import pt.unl.fct.di.apdc.geo5.data.RouteData;
+import pt.unl.fct.di.apdc.geo5.data.SearchRouteData;
 import pt.unl.fct.di.apdc.geo5.data.AddRouteData;
+import pt.unl.fct.di.apdc.geo5.util.Access;
+import pt.unl.fct.di.apdc.geo5.util.AccessMap;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
+import pt.unl.fct.di.apdc.geo5.util.Logs;
+import pt.unl.fct.di.apdc.geo5.util.Search;
 
 @Path("/route")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -59,6 +64,10 @@ public class RouteResource {
 		}
 		if (!routeData.validRegistration()) {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_ROUTE_SUBMIT, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
@@ -125,6 +134,10 @@ public class RouteResource {
 		if (routeData.id.equals("")) {
 			return Response.status(Status.BAD_REQUEST).entity("Please enter a valid id.").build();
 		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_ROUTE_GET, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
 		try {
 			Key routeKey = datastore.newKeyFactory().setKind("Route").newKey(routeData.id);
 			Entity r = datastore.get(routeKey);
@@ -175,6 +188,10 @@ public class RouteResource {
 		LOG.fine("Attempt to get routes from user: " + data.username);
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_ROUTE_GET_OF_USER, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
 		Query<Entity> query = Query.newEntityQueryBuilder()
@@ -229,6 +246,10 @@ public class RouteResource {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_ROUTE_LIST_ACTIVE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
 		Query<Entity> query = Query.newEntityQueryBuilder()
 				.setKind("Route")
 				.setFilter(PropertyFilter.eq("active_route", true))
@@ -268,5 +289,123 @@ public class RouteResource {
 		});
 		LOG.info("Got list of active routes");
 		return Response.ok(g.toJson(activeRoutes)).build();
+	}
+	
+	@POST
+	@Path("/searchActive")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response searchActiveRoutes(SearchRouteData searchData, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to list search of active routes");
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_ROUTE_SEARCH_ACTIVE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		String[] splitStr = searchData.search.trim().split("\\s+");
+		Query<Entity> query = Query.newEntityQueryBuilder()
+			    .setKind("Route")
+				.setFilter(PropertyFilter.eq("active_route", true))
+			    .build();
+		QueryResults<Entity> logs = datastore.run(query);
+		List<AddRouteData> searchResults = new ArrayList<AddRouteData>();
+		logs.forEachRemaining(searchResultsLog -> {
+			if (Search.containsWords(searchResultsLog.getString("route_name"), splitStr)) {
+				PointerData start = new PointerData(searchResultsLog.getString("route_start_lat"), searchResultsLog.getString("route_start_lon"));
+				PointerData end = new PointerData(searchResultsLog.getString("route_end_lat"), searchResultsLog.getString("route_end_lon"));
+				AddRouteData route;
+				if (searchResultsLog.getBoolean("has_intermidiate_points")) {
+					route = new AddRouteData(
+							searchResultsLog.getKey().getName().toString(),
+							start,
+							end,
+							searchResultsLog.getString("route_name"),
+							searchResultsLog.getString("route_owner"),
+							searchResultsLog.getString("route_description"),
+							searchResultsLog.getString("route_travel_mode"),
+							getIntermidiatePoints(searchResultsLog.getKey().getName().toString()),
+							true
+							);
+				}
+				else {
+					route = new AddRouteData(
+							searchResultsLog.getKey().getName().toString(),
+							start,
+							end,
+							searchResultsLog.getString("route_name"),
+							searchResultsLog.getString("route_owner"),
+							searchResultsLog.getString("route_description"),
+							searchResultsLog.getString("route_travel_mode"),
+							true
+							);
+				}
+				searchResults.add(route);
+			}
+		});
+		LOG.info("Got search results of active routes");
+		return Response.ok(g.toJson(searchResults)).build();
+	}
+	
+	@POST
+	@Path("/searchUser")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response searchUserRoutes(SearchRouteData searchData, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to list search of user routes");
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_ROUTE_SEARCH_OF_USER, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		String[] splitStr = searchData.search.trim().split("\\s+");
+		Query<Entity> query = Query.newEntityQueryBuilder()
+			    .setKind("Route")
+				.setFilter(PropertyFilter.eq("route_owner", data.username))
+			    .build();
+		QueryResults<Entity> logs = datastore.run(query);
+		List<AddRouteData> searchResults = new ArrayList<AddRouteData>();
+		logs.forEachRemaining(searchResultsLog -> {
+			if (Search.containsWords(searchResultsLog.getString("route_name"), splitStr)) {
+				PointerData start = new PointerData(searchResultsLog.getString("route_start_lat"), searchResultsLog.getString("route_start_lon"));
+				PointerData end = new PointerData(searchResultsLog.getString("route_end_lat"), searchResultsLog.getString("route_end_lon"));
+				AddRouteData route;
+				if (searchResultsLog.getBoolean("has_intermidiate_points")) {
+					route = new AddRouteData(
+							searchResultsLog.getKey().getName().toString(),
+							start,
+							end,
+							searchResultsLog.getString("route_name"),
+							searchResultsLog.getString("route_owner"),
+							searchResultsLog.getString("route_description"),
+							searchResultsLog.getString("route_travel_mode"),
+							getIntermidiatePoints(searchResultsLog.getKey().getName().toString()),
+							true
+							);
+				}
+				else {
+					route = new AddRouteData(
+							searchResultsLog.getKey().getName().toString(),
+							start,
+							end,
+							searchResultsLog.getString("route_name"),
+							searchResultsLog.getString("route_owner"),
+							searchResultsLog.getString("route_description"),
+							searchResultsLog.getString("route_travel_mode"),
+							true
+							);
+				}
+				searchResults.add(route);
+			}
+		});
+		LOG.info("Got search results of user routes");
+		return Response.ok(g.toJson(searchResults)).build();
 	}
 }

@@ -25,19 +25,14 @@ public class Email extends HttpServlet {
         
         try {
             MimeMessage msg = new MimeMessage(session);
-            
             // Sender's email ID needs to be mentioned
             msg.setFrom(new InternetAddress(ADDRESS));
-            
             // Recipient's email ID needs to be mentioned.
             msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recipientEmail));
-            
             // Set Subject: header field
             msg.setSubject("GeoPlaces: Activate your account", "utf-8");
-            
             // Now set the actual message
             msg.setContent("Welcome to GeoPlaces! Your activation code: " + activationCode, "text/html; charset=utf-8");
-            
             Transport.send(msg);
         } catch (MessagingException e) {
             LOG.warning("Error sending email");

@@ -29,7 +29,10 @@ import com.google.gson.JsonObject;
 import pt.unl.fct.di.apdc.geo5.data.AddGeoSpotData;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.GeoSpotData;
+import pt.unl.fct.di.apdc.geo5.util.Access;
+import pt.unl.fct.di.apdc.geo5.util.AccessMap;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
+import pt.unl.fct.di.apdc.geo5.util.Logs;
 
 @Path("/geoSpot")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -45,7 +48,7 @@ public class GeoSpotResource {
 	@POST
 	@Path("/submit")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response submitRoute(AddGeoSpotData geoSpotData, @Context HttpHeaders headers) {
+	public Response submitGeoSpot(AddGeoSpotData geoSpotData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to submit GeoSpot: " + geoSpotData.geoSpotName + " from user: " + data.username);
@@ -55,6 +58,10 @@ public class GeoSpotResource {
 		}		
 		if (!geoSpotData.validRegistration()) {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_GEOSPOT_SUBMIT, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
@@ -103,6 +110,10 @@ public class GeoSpotResource {
 		if (geoSpotData.geoSpotName.equals("")) {
 			return Response.status(Status.BAD_REQUEST).entity("Please enter a GeoSpot name.").build();
 		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_GEOSPOT_GET, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
 		try {
 			Key geoSpotKey = datastore.newKeyFactory().setKind("GeoSpot").newKey(geoSpotData.geoSpotName);
 			Entity gs = datastore.get(geoSpotKey);
@@ -135,6 +146,10 @@ public class GeoSpotResource {
 		LOG.fine("Attempt to list active GeoSpots");
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_GEOSPOT_LIST_ACTIVE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
 		Query<Entity> query = Query.newEntityQueryBuilder()

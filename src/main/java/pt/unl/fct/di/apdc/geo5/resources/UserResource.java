@@ -35,7 +35,10 @@ import com.google.gson.JsonObject;
 import pt.unl.fct.di.apdc.geo5.data.ActivateAccountData;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.UserData;
+import pt.unl.fct.di.apdc.geo5.util.Access;
+import pt.unl.fct.di.apdc.geo5.util.AccessMap;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
+import pt.unl.fct.di.apdc.geo5.util.Logs;
 
 @Path("/user")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -56,11 +59,14 @@ public class UserResource {
 	public Response getUser(UserData userData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		LOG.info("token: " + headers.getHeaderString("token"));
-
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to get user: " + userData.username + " by user: " + data.username);
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_USER_GET, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
 		try {
@@ -101,7 +107,7 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).build();
 			}
 			Entity u = datastore.get(userKey);
-			if (!u.getString("activation_code").equals(activateData.activationCode)) {
+			if (!u.getString("activation_code").equals(activateData.activationCode) && !u.getString("activation_code").equals("NULL")) {
 				LOG.warning("Invalid activation code for username: " + activateData.username);
 				return Response.status(Status.FORBIDDEN).build();
 			}
@@ -162,6 +168,10 @@ public class UserResource {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_USER_LIST_ACTIVE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
 		Query<Entity> query = Query.newEntityQueryBuilder()
 				.setKind("User")
 				.setFilter(PropertyFilter.eq("active_account", true))
@@ -184,6 +194,10 @@ public class UserResource {
 		LOG.fine("Attempt to get last 24h logins");
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_USER_LAST_24H_LOGINS, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
 		Calendar cal = Calendar.getInstance();
@@ -216,6 +230,10 @@ public class UserResource {
 		LOG.info("Attempting to get user picture: " + username);
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_USER_GET_USER_PICTURE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
 		try {

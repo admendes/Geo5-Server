@@ -66,7 +66,7 @@ public class UpdateResource {
 						.set("user_street", updateData.street)
 						.set("user_place", updateData.place)
 						.set("user_country", updateData.country)
-						.set("active_account", user.getString("active_account"))
+						.set("active_account", user.getBoolean("active_account"))
 						.set("activation_code", user.getString("activation_code"))
 						.build();
 				txn.update(user);

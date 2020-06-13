@@ -85,6 +85,39 @@ public class StorageResource {
 	}
 	
 	@POST
+	@Path("/upload/route/{routeid}")
+	public Response uploadRoutePicture(@Context HttpServletRequest req, @Context HttpServletResponse resp, @PathParam("routeid") String routeID) {
+		MediaResourceServlet m = new MediaResourceServlet();
+		String filename = UUID.randomUUID().toString();
+		LOG.info("Attempting to upload route picture: " + routeID);
+		Transaction txn = datastore.newTransaction();
+		try {
+			m.doPost(req, resp, filename);
+			Key pictureKey = datastore.newKeyFactory()
+					.setKind("RoutePicture")
+					.newKey(routeID);
+			Entity fileUpload = datastore.get(pictureKey);
+			fileUpload = Entity.newBuilder(pictureKey)
+					.set("file_name", filename)
+					.set("file_type", req.getContentType())
+					.set("file_upload_date", Timestamp.now())
+					.build();
+			txn.add(fileUpload);
+			LOG.info("Uploaded route picture successfully: " + routeID);
+			txn.commit();
+			return Response.ok("{}").build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}	
+	}
+	
+	@POST
 	@Path("/download/{filename}")
 	public Response download(@Context HttpServletRequest req, @Context HttpServletResponse resp, @PathParam("filename") String filename) {
 		MediaResourceServlet m = new MediaResourceServlet();

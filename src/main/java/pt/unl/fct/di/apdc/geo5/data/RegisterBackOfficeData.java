@@ -1,21 +1,27 @@
 package pt.unl.fct.di.apdc.geo5.data;
 
-public class RegisterData {
+public class RegisterBackOfficeData {
 
 	public String username;
 	public String name;
 	public String email;	
 	public String password;
+	public String street;
+	public String place;
+	public String country;
 	
-	public RegisterData() {
+	public RegisterBackOfficeData() {
 		
 	}
 	
-	public RegisterData(String username, String name, String email, String password) {
+	public RegisterBackOfficeData(String username, String name, String email, String password, String street, String place, String country) {
 			this.username = username;
 			this.name = name;
 			this.email = email;
 			this.password = password;
+			this.street = street;
+			this.place = place;
+			this.country = country;
 	}
 	
 	private boolean validField(String value) {

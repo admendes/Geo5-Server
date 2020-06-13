@@ -76,6 +76,12 @@ public class LoginResource {
 				return Response.status(Status.FORBIDDEN).build();
 			}
 
+			if (!user.getBoolean("active_account")) {
+				//Account is inactive
+				LOG.warning("Account is inactive: " + data.username);
+				return Response.status(Status.FORBIDDEN).build();
+			}
+			
 			//We get the user stats from the storage
 			Entity stats = txn.get(ctrsKey);
 			if(stats == null) {

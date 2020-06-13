@@ -66,6 +66,7 @@ public class RegisterResource {
 						.set("user_place", "")
 						.set("user_country", "")
 						.set("active_account", true)
+						.set("activation_code", "")
 						.build();
 				txn.add(user);
 				LOG.info("User registered " + data.username);
