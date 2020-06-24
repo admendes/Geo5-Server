@@ -23,6 +23,7 @@ import com.google.cloud.datastore.Transaction;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.UpdateUserData;
+import pt.unl.fct.di.apdc.geo5.data.UpdateUserDataNoPass;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
 
 @Path("/update")
@@ -59,6 +60,56 @@ public class UpdateResource {
 				user = Entity.newBuilder(userKey)
 						.set("user_name", updateData.name)
 						.set("user_pwd", DigestUtils.sha512Hex(updateData.password))
+						.set("user_email", updateData.email)
+						.set("user_role", user.getString("user_role"))
+						.set("user_creation_time", user.getTimestamp("user_creation_time"))
+						.set("user_last_update_time", Timestamp.now())
+						.set("user_street", updateData.street)
+						.set("user_place", updateData.place)
+						.set("user_country", updateData.country)
+						.set("active_account", user.getBoolean("active_account"))
+						.set("activation_code", user.getString("activation_code"))
+						.build();
+				txn.update(user);
+				LOG.info("User information changed: " + data.username);
+				txn.commit();
+				return Response.ok("{}").build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}
+	}
+	
+	@POST
+	@Path("/v2")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response doUpdateNopass(UpdateUserDataNoPass updateData, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to edit user: " + data.username);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!updateData.validRegistration()) {
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+		Transaction txn = datastore.newTransaction();
+		try {
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+			if (txn.get(userKey) == null) {
+				LOG.warning("Failed update attempt for username: " + data.username);
+				return Response.status(Status.FORBIDDEN).build();
+			}
+			Entity user = datastore.get(userKey);
+				user = Entity.newBuilder(userKey)
+						.set("user_name", updateData.name)
+						.set("user_pwd", user.getString("user_pwd"))
 						.set("user_email", updateData.email)
 						.set("user_role", user.getString("user_role"))
 						.set("user_creation_time", user.getTimestamp("user_creation_time"))

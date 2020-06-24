@@ -62,7 +62,7 @@ public class BackOfficeResource {
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
-			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(boData.username);
 			Entity user = datastore.get(userKey);
 			if (user != null) {
 				txn.rollback();
@@ -113,7 +113,7 @@ public class BackOfficeResource {
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
-			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(boData.username);
 			Entity user = datastore.get(userKey);
 			if (user != null) {
 				txn.rollback();
@@ -164,7 +164,7 @@ public class BackOfficeResource {
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
-			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(boData.username);
 			Entity user = datastore.get(userKey);
 			if (user != null) {
 				txn.rollback();

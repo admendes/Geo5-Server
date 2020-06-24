@@ -29,7 +29,7 @@
 		</init-param>
 		<init-param>
 			<param-name>jersey.config.server.provider.packages</param-name>
-			<param-value>pt.unl.fct.di.apdc.geo5.resources</param-value>
+			<param-value>pt.unl.fct.di.apdc.geo5.resources,pt.unl.fct.di.apdc.geo5.backoffice</param-value>
 		</init-param>
 		<init-param>
 			<param-name>jersey.config.server.provider.scanning.recursive</param-name>
