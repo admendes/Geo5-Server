@@ -87,7 +87,7 @@ public class UserResource {
 		        result.addProperty("user_country", u.getString("user_country"));
 		        result.addProperty("active_account", u.getBoolean("active_account"));
 		        result.addProperty("user_birthday", u.getString("user_birthday"));
-		        result.addProperty("user_zip_code", u.getBoolean("user_zip_code"));
+		        result.addProperty("user_zip_code", u.getString("user_zip_code"));
 				LOG.info("Got user: " + userData.username + " for user: " + data.username);
 				return Response.ok(g.toJson(result)).build();
 			}

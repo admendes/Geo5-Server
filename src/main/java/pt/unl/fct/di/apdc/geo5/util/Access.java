@@ -38,7 +38,15 @@ public class Access {
 	public static final String PERMISSION_STORAGE_UPLOAD_USER_PICTURE = "/storage/upload/user/{username}";
 	public static final String PERMISSION_STORAGE_UPLOAD_ROUTE_PICTURE = "/storage/upload/route/{routeid}";
 	public static final String PERMISSION_STORAGE_UPLOAD_GEOSPOT_PICTURE = "/storage/upload/geoSpot/{geoSpotName}";
+	public static final String PERMISSION_STORAGE_UPLOAD_INFO_PICTURE = "/storage/upload/info/{infoName}";
 	public static final String PERMISSION_STORAGE_DOWNLOAD = "/storage/download";
 	public static final String PERMISSION_STORAGE_DELETE = "/storage/delete";
+	
+	public static final String PERMISSION_QUIZZ_SUBMIT = "/quizz/sumbit";
+	public static final String PERMISSION_QUIZZ_LIST_ACTIVE = "/quizz/listActive";
+	
+	public static final String PERMISSION_INFO_SUBMIT = "/info/sumbit";
+	public static final String PERMISSION_INFO_LIST_ACTIVE = "/info/listActive";
+	public static final String PERMISSION_INFO_GET_PICTURES = "/info/{infoName}/pictures";
 
 }

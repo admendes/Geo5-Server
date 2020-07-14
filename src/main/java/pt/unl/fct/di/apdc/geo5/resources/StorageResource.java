@@ -23,8 +23,6 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
-import pt.unl.fct.di.apdc.geo5.data.AddGeoSpotPictureData;
-import pt.unl.fct.di.apdc.geo5.data.AddRoutePictureData;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.util.Access;
 import pt.unl.fct.di.apdc.geo5.util.AccessMap;
@@ -117,7 +115,7 @@ public class StorageResource {
 	@POST
 	@Path("/upload/route/{routeid}")
 	public Response uploadRoutePicture(@Context HttpServletRequest req, @Context HttpServletResponse resp, @Context HttpHeaders headers, 
-			@PathParam("routeid") String routeID, AddRoutePictureData addRoutePictureData) {
+			@PathParam("routeid") String routeID) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.info("Attempting to upload route picture: " + routeID);
@@ -141,8 +139,6 @@ public class StorageResource {
 			fileUpload = Entity.newBuilder(pictureKey)
 					.set("routeID", routeID)
 					.set("file_name", filename)
-					.set("file_title", addRoutePictureData.title)
-					.set("file_description", addRoutePictureData.description)
 					.set("file_type", req.getContentType())
 					.set("file_upload_date", Timestamp.now())
 					.build();
@@ -164,7 +160,7 @@ public class StorageResource {
 	@POST
 	@Path("/upload/geoSpot/{geoSpotName}")
 	public Response uploadGeoSpotPicture(@Context HttpServletRequest req, @Context HttpServletResponse resp, @Context HttpHeaders headers, 
-			@PathParam("geoSpotName") String geoSpotName, AddGeoSpotPictureData addGeoSpotPictureData) {
+			@PathParam("geoSpotName") String geoSpotName) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt upload GeoSpot picture by user: " + data.username);
@@ -188,13 +184,56 @@ public class StorageResource {
 			fileUpload = Entity.newBuilder(pictureKey)
 					.set("geoSpot_name", geoSpotName)
 					.set("file_name", filename)
-					.set("file_title", addGeoSpotPictureData.title)
-					.set("file_description", addGeoSpotPictureData.description)
 					.set("file_type", req.getContentType())
 					.set("file_upload_date", Timestamp.now())
 					.build();
 			txn.add(fileUpload);
 			LOG.info("Uploaded GeoSpot picture successfully: " + geoSpotName);
+			txn.commit();
+			return Response.ok("{}").build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}	
+	}
+	
+	@POST
+	@Path("/upload/info/{infoName}")
+	public Response uploadInfoPicture(@Context HttpServletRequest req, @Context HttpServletResponse resp, @Context HttpHeaders headers, 
+			@PathParam("infoName") String infoName) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt upload Info picture by user: " + data.username);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_STORAGE_UPLOAD_INFO_PICTURE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		MediaResourceServlet m = new MediaResourceServlet();
+		String filename = UUID.randomUUID().toString();
+		Transaction txn = datastore.newTransaction();
+		try {
+			m.doPost(req, resp, filename);
+			Key pictureKey = datastore.allocateId(
+					datastore.newKeyFactory()
+					.setKind("InfoPicture").newKey());
+			Entity fileUpload = datastore.get(pictureKey);
+			fileUpload = Entity.newBuilder(pictureKey)
+					.set("info_name", infoName)
+					.set("file_name", filename)
+					.set("file_type", req.getContentType())
+					.set("file_upload_date", Timestamp.now())
+					.build();
+			txn.add(fileUpload);
+			LOG.info("Uploaded Info picture successfully: " + infoName);
 			txn.commit();
 			return Response.ok("{}").build();
 		} catch (Exception e) {

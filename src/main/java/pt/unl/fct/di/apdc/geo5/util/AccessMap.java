@@ -45,6 +45,9 @@ public class AccessMap {
         userAccess.add(Access.PERMISSION_USER_GET_USER_PICTURE);
         userAccess.add(Access.PERMISSION_USER_MAKE_ACCOUNT_INACTIVE);
         userAccess.add(Access.PERMISSION_STORAGE_UPLOAD_USER_PICTURE);
+        userAccess.add(Access.PERMISSION_QUIZZ_LIST_ACTIVE);
+        userAccess.add(Access.PERMISSION_INFO_LIST_ACTIVE);
+        userAccess.add(Access.PERMISSION_INFO_GET_PICTURES);
 
         //BOP
         Set<String> modAccess = new HashSet<String>();
@@ -56,8 +59,11 @@ public class AccessMap {
         modAccess.add(Access.PERMISSION_STORAGE_UPLOAD);
         modAccess.add(Access.PERMISSION_STORAGE_UPLOAD_ROUTE_PICTURE);
         modAccess.add(Access.PERMISSION_STORAGE_UPLOAD_GEOSPOT_PICTURE);
+        modAccess.add(Access.PERMISSION_STORAGE_UPLOAD_INFO_PICTURE);
         modAccess.add(Access.PERMISSION_STORAGE_DOWNLOAD);
         modAccess.add(Access.PERMISSION_STORAGE_DELETE);
+        modAccess.add(Access.PERMISSION_QUIZZ_SUBMIT);
+        modAccess.add(Access.PERMISSION_INFO_SUBMIT);
 
         //BOM
         Set<String> gboAccess = new HashSet<String>();

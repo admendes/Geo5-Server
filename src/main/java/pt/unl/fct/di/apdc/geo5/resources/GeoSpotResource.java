@@ -181,7 +181,7 @@ public class GeoSpotResource {
 	
 	@POST
 	@Path("/{geoSpotName}/pictures")
-	public Response getRoutePicture(@Context HttpServletRequest req, @Context HttpServletResponse resp, 
+	public Response getGeoSpotPictures(@Context HttpServletRequest req, @Context HttpServletResponse resp, 
 			@PathParam("geoSpotName") String geoSpotName, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
@@ -196,7 +196,7 @@ public class GeoSpotResource {
 		}
 		Query<Entity> query = Query.newEntityQueryBuilder()
 				.setKind("GeoSpotPicture")
-				.setFilter(PropertyFilter.eq("geoSpotName", geoSpotName))
+				.setFilter(PropertyFilter.eq("geoSpot_name", geoSpotName))
 				.build();
 		QueryResults<Entity> logs = datastore.run(query);
 		List<Entity> geoSpotPictureList = new ArrayList<Entity>();
