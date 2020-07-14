@@ -9,12 +9,15 @@ public class RegisterBackOfficeData {
 	public String street;
 	public String place;
 	public String country;
-	
+	public String birthday;
+	public String zipCode;
+
 	public RegisterBackOfficeData() {
 		
 	}
 	
-	public RegisterBackOfficeData(String username, String name, String email, String password, String street, String place, String country) {
+	public RegisterBackOfficeData(String username, String name, String email, String password, String street, String place, String country,
+				String birthday, String zipCode) {
 			this.username = username;
 			this.name = name;
 			this.email = email;
@@ -22,6 +25,8 @@ public class RegisterBackOfficeData {
 			this.street = street;
 			this.place = place;
 			this.country = country;
+			this.birthday = birthday;
+			this.zipCode = zipCode;
 	}
 	
 	private boolean validField(String value) {

@@ -67,6 +67,8 @@ public class RegisterResource {
 						.set("user_country", "")
 						.set("active_account", true)
 						.set("activation_code", "")
+						.set("user_birthday", "")
+						.set("user_zip_code", "")
 						.build();
 				txn.add(user);
 				LOG.info("User registered " + data.username);
@@ -112,6 +114,8 @@ public class RegisterResource {
 						.set("user_country", "")
 						.set("active_account", false)
 						.set("activation_code", activationCode)
+						.set("user_birthday", "")
+						.set("user_zip_code", "")
 						.build();
 				// Send confirmation email
 				Email.sendEmail(data.email, activationCode);

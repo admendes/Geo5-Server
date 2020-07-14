@@ -11,12 +11,14 @@ public class UpdateUserData {
 	public String country;
 	//public String role;
 	//public boolean isActive;
+	public String birthday;
+	public String zipCode;
 
 	public UpdateUserData() {
 		
 	}
 	
-	public UpdateUserData(String name, String email, String password, String street, String place, String country) {
+	public UpdateUserData(String name, String email, String password, String street, String place, String country, String birthday, String zipCode) {
 		
 			//this.username = username;
 			this.password = password;
@@ -28,6 +30,8 @@ public class UpdateUserData {
 			this.place = place;
 			this.country = country;
 			//this.isActive = isActive;
+			this.birthday = birthday;
+			this.zipCode = zipCode;
 	}
 	
 	private boolean validField(String value) {

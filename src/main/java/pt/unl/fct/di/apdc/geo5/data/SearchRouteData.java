@@ -9,6 +9,6 @@ public class SearchRouteData {
 	}
 	
 	public SearchRouteData(String search) {
-		this.search = search;
+		this.search = search.toLowerCase();
 	}
 }

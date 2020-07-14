@@ -69,6 +69,8 @@ public class UpdateResource {
 						.set("user_country", updateData.country)
 						.set("active_account", user.getBoolean("active_account"))
 						.set("activation_code", user.getString("activation_code"))
+						.set("user_birthday", updateData.birthday)
+						.set("user_zip_code", updateData.zipCode)
 						.build();
 				txn.update(user);
 				LOG.info("User information changed: " + data.username);
@@ -119,6 +121,8 @@ public class UpdateResource {
 						.set("user_country", updateData.country)
 						.set("active_account", user.getBoolean("active_account"))
 						.set("activation_code", user.getString("activation_code"))
+						.set("user_birthday", updateData.birthday)
+						.set("user_zip_code", updateData.zipCode)
 						.build();
 				txn.update(user);
 				LOG.info("User information changed: " + data.username);

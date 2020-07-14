@@ -82,6 +82,8 @@ public class CommunityModeratorResource {
 						.set("user_country", u.getString("user_country"))
 						.set("active_account", true)
 						.set("activation_code", "NULL")
+						.set("user_birthday", u.getString("user_birthday"))
+						.set("user_zip_code", u.getString("user_zip_code"))
 						.build();
 				txn.update(u);
 				LOG.info("User made active: " + data.username);
@@ -141,6 +143,8 @@ public class CommunityModeratorResource {
 						.set("user_country", u.getString("user_country"))
 						.set("active_account", false)
 						.set("activation_code", "NULL")
+						.set("user_birthday", u.getString("user_birthday"))
+						.set("user_zip_code", u.getString("user_zip_code"))
 						.build();
 				txn.update(u);
 				LOG.info("User made inactive: " + data.username);

@@ -9,6 +9,8 @@ public class UpdateUserDataNoPass {
 	public String street;
 	public String place;
 	public String country;
+	public String birthday;
+	public String zipCode;
 	//public String role;
 	//public boolean isActive;
 
@@ -16,7 +18,7 @@ public class UpdateUserDataNoPass {
 		
 	}
 	
-	public UpdateUserDataNoPass(String name, String email, String street, String place, String country) {
+	public UpdateUserDataNoPass(String name, String email, String street, String place, String country, String birthday, String zipCode) {
 		
 			//this.username = username;
 			this.name = name;
@@ -26,6 +28,8 @@ public class UpdateUserDataNoPass {
 			this.place = place;
 			this.country = country;
 			//this.isActive = isActive;
+			this.birthday = birthday;
+			this.zipCode = zipCode;
 	}
 	
 	private boolean validField(String value) {

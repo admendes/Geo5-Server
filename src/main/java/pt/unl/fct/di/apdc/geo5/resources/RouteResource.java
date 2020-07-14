@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -27,11 +30,9 @@ import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.Transaction;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.PointerData;
-import pt.unl.fct.di.apdc.geo5.data.RouteData;
 import pt.unl.fct.di.apdc.geo5.data.SearchRouteData;
 import pt.unl.fct.di.apdc.geo5.data.AddRouteData;
 import pt.unl.fct.di.apdc.geo5.util.Access;
@@ -88,8 +89,9 @@ public class RouteResource {
 						.set("route_end_lat", routeData.destination.lat)
 						.set("route_end_lon", routeData.destination.lng)
 						.set("route_creation_time", Timestamp.now())
-						.set("active_route", true)
+						.set("active_route", false)
 						.set("has_intermidiate_points", hasIntermidiatePoints)
+						.set("isTracked", routeData.isTracked)
 						.build();
 				if (hasIntermidiatePoints) {
 					for (PointerData i : routeData.intermidiatePoints) {
@@ -120,6 +122,7 @@ public class RouteResource {
 		}
 	}
 
+	/**
 	@POST
 	@Path("/get")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -163,6 +166,7 @@ public class RouteResource {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 	}
+	**/
 	
 	public Set<PointerData> getIntermidiatePoints(String id) {
 		Query<Entity> query = Query.newEntityQueryBuilder()
@@ -214,7 +218,7 @@ public class RouteResource {
 						userRoutesLog.getString("route_description"),
 						userRoutesLog.getString("route_travel_mode"),
 						getIntermidiatePoints(userRoutesLog.getKey().getName().toString()),
-						true
+						userRoutesLog.getBoolean("isTracked")
 				);
 			}
 			else {
@@ -226,7 +230,7 @@ public class RouteResource {
 						userRoutesLog.getString("route_owner"),
 						userRoutesLog.getString("route_description"),
 						userRoutesLog.getString("route_travel_mode"),
-						true
+						userRoutesLog.getBoolean("isTracked")
 				);
 			}
 			userRoutes.add(route);
@@ -270,7 +274,8 @@ public class RouteResource {
 						activeRoutesLog.getString("route_description"),
 						activeRoutesLog.getString("route_travel_mode"),
 						getIntermidiatePoints(activeRoutesLog.getKey().getName().toString()),
-						true
+						activeRoutesLog.getBoolean("isTracked")
+
 				);
 			}
 			else {
@@ -282,7 +287,7 @@ public class RouteResource {
 						activeRoutesLog.getString("route_owner"),
 						activeRoutesLog.getString("route_description"),
 						activeRoutesLog.getString("route_travel_mode"),
-						true
+						activeRoutesLog.getBoolean("isTracked")
 				);
 			}
 			activeRoutes.add(route);
@@ -314,7 +319,7 @@ public class RouteResource {
 		QueryResults<Entity> logs = datastore.run(query);
 		List<AddRouteData> searchResults = new ArrayList<AddRouteData>();
 		logs.forEachRemaining(searchResultsLog -> {
-			if (Search.containsWords(searchResultsLog.getString("route_name"), splitStr)) {
+			if (Search.containsWords(searchResultsLog.getString("route_name").toLowerCase(), splitStr)) {
 				PointerData start = new PointerData(searchResultsLog.getString("route_start_lat"), searchResultsLog.getString("route_start_lon"));
 				PointerData end = new PointerData(searchResultsLog.getString("route_end_lat"), searchResultsLog.getString("route_end_lon"));
 				AddRouteData route;
@@ -328,7 +333,7 @@ public class RouteResource {
 							searchResultsLog.getString("route_description"),
 							searchResultsLog.getString("route_travel_mode"),
 							getIntermidiatePoints(searchResultsLog.getKey().getName().toString()),
-							true
+							searchResultsLog.getBoolean("isTracked")
 							);
 				}
 				else {
@@ -340,7 +345,7 @@ public class RouteResource {
 							searchResultsLog.getString("route_owner"),
 							searchResultsLog.getString("route_description"),
 							searchResultsLog.getString("route_travel_mode"),
-							true
+							searchResultsLog.getBoolean("isTracked")
 							);
 				}
 				searchResults.add(route);
@@ -373,7 +378,7 @@ public class RouteResource {
 		QueryResults<Entity> logs = datastore.run(query);
 		List<AddRouteData> searchResults = new ArrayList<AddRouteData>();
 		logs.forEachRemaining(searchResultsLog -> {
-			if (Search.containsWords(searchResultsLog.getString("route_name"), splitStr)) {
+			if (Search.containsWords(searchResultsLog.getString("route_name").toLowerCase(), splitStr)) {
 				PointerData start = new PointerData(searchResultsLog.getString("route_start_lat"), searchResultsLog.getString("route_start_lon"));
 				PointerData end = new PointerData(searchResultsLog.getString("route_end_lat"), searchResultsLog.getString("route_end_lon"));
 				AddRouteData route;
@@ -387,7 +392,7 @@ public class RouteResource {
 							searchResultsLog.getString("route_description"),
 							searchResultsLog.getString("route_travel_mode"),
 							getIntermidiatePoints(searchResultsLog.getKey().getName().toString()),
-							true
+							searchResultsLog.getBoolean("isTracked")
 							);
 				}
 				else {
@@ -399,7 +404,7 @@ public class RouteResource {
 							searchResultsLog.getString("route_owner"),
 							searchResultsLog.getString("route_description"),
 							searchResultsLog.getString("route_travel_mode"),
-							true
+							searchResultsLog.getBoolean("isTracked")
 							);
 				}
 				searchResults.add(route);
@@ -407,5 +412,33 @@ public class RouteResource {
 		});
 		LOG.info("Got search results of user routes");
 		return Response.ok(g.toJson(searchResults)).build();
+	}
+	
+	@POST
+	@Path("/{routeID}/pictures")
+	public Response getRoutePicture(@Context HttpServletRequest req, @Context HttpServletResponse resp, 
+			@PathParam("routeID") String routeID, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.info("Attempting to get route pictures: " + routeID);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_ROUTE_GET_PICTURES, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		Query<Entity> query = Query.newEntityQueryBuilder()
+				.setKind("RoutePicture")
+				.setFilter(PropertyFilter.eq("routeID", routeID))
+				.build();
+		QueryResults<Entity> logs = datastore.run(query);
+		List<Entity> routePictureList = new ArrayList<Entity>();
+		logs.forEachRemaining(routePictureLog -> {
+			routePictureList.add(routePictureLog);
+		});
+		LOG.info("User: " + data.username + " Got route pictures for id: " + routeID);
+		return Response.ok(g.toJson(routePictureList)).build();
 	}
 }

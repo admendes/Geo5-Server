@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -29,6 +32,7 @@ import com.google.gson.JsonObject;
 import pt.unl.fct.di.apdc.geo5.data.AddGeoSpotData;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.GeoSpotData;
+import pt.unl.fct.di.apdc.geo5.data.PointerData;
 import pt.unl.fct.di.apdc.geo5.util.Access;
 import pt.unl.fct.di.apdc.geo5.util.AccessMap;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
@@ -75,6 +79,7 @@ public class GeoSpotResource {
 						.set("geoSpot_name", geoSpotData.geoSpotName)
 						.set("geoSpot_owner", data.username)
 						.set("geoSpot_description", geoSpotData.description)
+						.set("geoSpot_tags", geoSpotData.tags)
 						.set("geoSpot_creation_time", Timestamp.now())
 						.set("geoSpot_lat", geoSpotData.location.lat)
 						.set("geoSpot_lon", geoSpotData.location.lng)
@@ -124,6 +129,7 @@ public class GeoSpotResource {
 		        result.addProperty("geoSpot_name", gs.getKey().getName());
 		        result.addProperty("geoSpot_owner", gs.getString("geoSpot_owner"));
 		        result.addProperty("geoSpot_description", gs.getString("geoSpot_description"));
+		        result.addProperty("geoSpot_tags", gs.getString("geoSpot_tags"));
 		        result.addProperty("geoSpot_creation_time", gs.getTimestamp("route_creation_time").toString());
 		        result.addProperty("geoSpot_lat", gs.getLong("geoSpot_lat"));
 		        result.addProperty("geoSpot_lon", gs.getLong("geoSpot_lon"));
@@ -157,11 +163,47 @@ public class GeoSpotResource {
 				.setFilter(PropertyFilter.eq("active_geoSpot", true))
 				.build();
 		QueryResults<Entity> logs = datastore.run(query);
-		List<Entity> activeGeoSpotList = new ArrayList<Entity>();
+		List<AddGeoSpotData> activeGeoSpotList = new ArrayList<AddGeoSpotData>();
 		logs.forEachRemaining(activeGeoSpotLog -> {
-			activeGeoSpotList.add(activeGeoSpotLog);
+			PointerData location = new PointerData(activeGeoSpotLog.getString("geoSpot_lat"), activeGeoSpotLog.getString("geoSpot_lon"));
+			AddGeoSpotData geoSpot;
+			geoSpot = new AddGeoSpotData(
+					location,
+					activeGeoSpotLog.getString("geoSpot_name"),
+					activeGeoSpotLog.getString("geoSpot_description"),
+					activeGeoSpotLog.getString("geoSpot_tags")
+				);
+			activeGeoSpotList.add(geoSpot);
 		});
 		LOG.info("Got list of active GeoSpots");
 		return Response.ok(g.toJson(activeGeoSpotList)).build();
+	}
+	
+	@POST
+	@Path("/{geoSpotName}/pictures")
+	public Response getRoutePicture(@Context HttpServletRequest req, @Context HttpServletResponse resp, 
+			@PathParam("geoSpotName") String geoSpotName, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.info("Attempting to get GeoSpot pictures: " + geoSpotName);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_GEOSPOT_GET_PICTURES, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		Query<Entity> query = Query.newEntityQueryBuilder()
+				.setKind("GeoSpotPicture")
+				.setFilter(PropertyFilter.eq("geoSpotName", geoSpotName))
+				.build();
+		QueryResults<Entity> logs = datastore.run(query);
+		List<Entity> geoSpotPictureList = new ArrayList<Entity>();
+		logs.forEachRemaining(geoSpotPictureLog -> {
+			geoSpotPictureList.add(geoSpotPictureLog);
+		});
+		LOG.info("User: " + data.username + " Got GeoSpot pictures for id: " + geoSpotName);
+		return Response.ok(g.toJson(geoSpotPictureList)).build();
 	}
 }

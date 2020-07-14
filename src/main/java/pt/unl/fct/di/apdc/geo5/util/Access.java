@@ -21,13 +21,24 @@ public class Access {
 	public static final String PERMISSION_ROUTE_LIST_ACTIVE = "/route/listActive";
 	public static final String PERMISSION_ROUTE_SEARCH_ACTIVE = "/route/searchActive";
 	public static final String PERMISSION_ROUTE_SEARCH_OF_USER = "/route/searchUser";
+	public static final String PERMISSION_ROUTE_GET_PICTURES = "/route/{routeID}/pictures";
 	
 	public static final String PERMISSION_GEOSPOT_SUBMIT = "/geoSpot/submit";
 	public static final String PERMISSION_GEOSPOT_GET = "/geoSpot/get";
 	public static final String PERMISSION_GEOSPOT_LIST_ACTIVE = "/geoSpot/listActive";
+	public static final String PERMISSION_GEOSPOT_GET_PICTURES = "/geoSpot/{geoSpotName}/pictures";
 	
 	public static final String PERMISSION_USER_GET = "/user/get";
 	public static final String PERMISSION_USER_LIST_ACTIVE = "/user/listActive";
 	public static final String PERMISSION_USER_LAST_24H_LOGINS = "/user/last24hlogins";
 	public static final String PERMISSION_USER_GET_USER_PICTURE = "/user/{username}/picture";
+	public static final String PERMISSION_USER_MAKE_ACCOUNT_INACTIVE = "/user/makeAccountInactive";
+
+	public static final String PERMISSION_STORAGE_UPLOAD = "/storage/upload";
+	public static final String PERMISSION_STORAGE_UPLOAD_USER_PICTURE = "/storage/upload/user/{username}";
+	public static final String PERMISSION_STORAGE_UPLOAD_ROUTE_PICTURE = "/storage/upload/route/{routeid}";
+	public static final String PERMISSION_STORAGE_UPLOAD_GEOSPOT_PICTURE = "/storage/upload/geoSpot/{geoSpotName}";
+	public static final String PERMISSION_STORAGE_DOWNLOAD = "/storage/download";
+	public static final String PERMISSION_STORAGE_DELETE = "/storage/delete";
+
 }

@@ -80,6 +80,8 @@ public class BackOfficeResource {
 						.set("user_country", boData.country)
 						.set("active_account", true)
 						.set("activation_code", "SU")
+						.set("user_birthday", boData.birthday)
+						.set("user_zip_code", boData.zipCode)
 						.build();
 				txn.add(user);
 				LOG.info("BO registered " + data.username);
@@ -131,6 +133,8 @@ public class BackOfficeResource {
 						.set("user_country", boData.country)
 						.set("active_account", true)
 						.set("activation_code", "BOM")
+						.set("user_birthday", boData.birthday)
+						.set("user_zip_code", boData.zipCode)
 						.build();
 				txn.add(user);
 				LOG.info("BOM registered " + data.username);
@@ -182,6 +186,8 @@ public class BackOfficeResource {
 						.set("user_country", boData.country)
 						.set("active_account", true)
 						.set("activation_code", "BOP")
+						.set("user_birthday", boData.birthday)
+						.set("user_zip_code", boData.zipCode)
 						.build();
 				txn.add(user);
 				LOG.info("BOP registered " + data.username);
