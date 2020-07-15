@@ -48,6 +48,11 @@ public class AccessMap {
         userAccess.add(Access.PERMISSION_QUIZZ_LIST_ACTIVE);
         userAccess.add(Access.PERMISSION_INFO_LIST_ACTIVE);
         userAccess.add(Access.PERMISSION_INFO_GET_PICTURES);
+        userAccess.add(Access.PERMISSION_STORAGE_UPLOAD_ROUTE_PICTURE);
+        userAccess.add(Access.PERMISSION_COMMENT_ROUTE_ADD);
+        userAccess.add(Access.PERMISSION_COMMENT_GEOSPOT_ADD);
+        userAccess.add(Access.PERMISSION_COMMENT_ROUTE_GET);
+        userAccess.add(Access.PERMISSION_COMMENT_GEOSPOT_GET);
 
         //BOP
         Set<String> modAccess = new HashSet<String>();
@@ -57,7 +62,6 @@ public class AccessMap {
         modAccess.add(Access.PERMISSION_MODERATOR_MAKE_ROUTE_INACTIVE);
         modAccess.add(Access.PERMISSION_GEOSPOT_SUBMIT);
         modAccess.add(Access.PERMISSION_STORAGE_UPLOAD);
-        modAccess.add(Access.PERMISSION_STORAGE_UPLOAD_ROUTE_PICTURE);
         modAccess.add(Access.PERMISSION_STORAGE_UPLOAD_GEOSPOT_PICTURE);
         modAccess.add(Access.PERMISSION_STORAGE_UPLOAD_INFO_PICTURE);
         modAccess.add(Access.PERMISSION_STORAGE_DOWNLOAD);
@@ -75,6 +79,10 @@ public class AccessMap {
         gboAccess.add(Access.PERMISSION_MODERATOR_MAKE_USER_INACTIVE);
         gboAccess.add(Access.PERMISSION_USER_LIST_ACTIVE);
         gboAccess.add(Access.PERMISSION_USER_LAST_24H_LOGINS);
+        gboAccess.add(Access.PERMISSION_COMMENT_LIST_ACTIVE_ROUTE);
+        gboAccess.add(Access.PERMISSION_COMMENT_LIST_ACTIVE_GEOSPOTS);
+        gboAccess.add(Access.PERMISSION_MODERATOR_MAKE_COMMENT_ROUTE_INACTIVE);
+        gboAccess.add(Access.PERMISSION_MODERATOR_MAKE_COMMENT_GEOSPOT_INACTIVE);
 
         //SU
         Set<String> suAccess = new HashSet<String>();

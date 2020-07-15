@@ -11,6 +11,8 @@ public class Access {
 	
 	public static final String PERMISSION_MODERATOR_MAKE_USER_ACTIVE= "/communityModerator/makeUserActive";
 	public static final String PERMISSION_MODERATOR_MAKE_USER_INACTIVE = "/communityModerator/makeUserInactive";
+	public static final String PERMISSION_MODERATOR_MAKE_COMMENT_ROUTE_INACTIVE = "/makeRouteCommentInactive/{commentID}";
+	public static final String PERMISSION_MODERATOR_MAKE_COMMENT_GEOSPOT_INACTIVE = "/makeGeoSpotCommentInactive/{commentID}";
 
 	public static final String PERMISSION_MODERATOR_MAKE_ROUTE_ACTIVE= "/routeModerator/makeRouteActive";
 	public static final String PERMISSION_MODERATOR_MAKE_ROUTE_INACTIVE = "/routeModerator/makeRouteInactive";
@@ -48,5 +50,12 @@ public class Access {
 	public static final String PERMISSION_INFO_SUBMIT = "/info/sumbit";
 	public static final String PERMISSION_INFO_LIST_ACTIVE = "/info/listActive";
 	public static final String PERMISSION_INFO_GET_PICTURES = "/info/{infoName}/pictures";
+	
+	public static final String PERMISSION_COMMENT_ROUTE_ADD = "/comment/route";
+	public static final String PERMISSION_COMMENT_GEOSPOT_ADD = "/comment/geoSpot";
+	public static final String PERMISSION_COMMENT_LIST_ACTIVE_ROUTE = "/comment/route/listActive";
+	public static final String PERMISSION_COMMENT_LIST_ACTIVE_GEOSPOTS = "/comment/geoSpot/listActive";
+	public static final String PERMISSION_COMMENT_ROUTE_GET = "/comment/route/{routeID}";
+	public static final String PERMISSION_COMMENT_GEOSPOT_GET = "/comment/geoSpot/{geoSpotName}";
 
 }

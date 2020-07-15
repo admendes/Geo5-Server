@@ -199,9 +199,9 @@ public class GeoSpotResource {
 				.setFilter(PropertyFilter.eq("geoSpot_name", geoSpotName))
 				.build();
 		QueryResults<Entity> logs = datastore.run(query);
-		List<Entity> geoSpotPictureList = new ArrayList<Entity>();
+		List<String> geoSpotPictureList = new ArrayList<String>();
 		logs.forEachRemaining(geoSpotPictureLog -> {
-			geoSpotPictureList.add(geoSpotPictureLog);
+			geoSpotPictureList.add(geoSpotPictureLog.getString("file_name"));
 		});
 		LOG.info("User: " + data.username + " Got GeoSpot pictures for id: " + geoSpotName);
 		return Response.ok(g.toJson(geoSpotPictureList)).build();

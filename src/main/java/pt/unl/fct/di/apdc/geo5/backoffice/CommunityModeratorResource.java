@@ -5,12 +5,15 @@ import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
@@ -20,6 +23,7 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
+import pt.unl.fct.di.apdc.geo5.data.CommentRouteData;
 import pt.unl.fct.di.apdc.geo5.data.UserData;
 import pt.unl.fct.di.apdc.geo5.resources.LoginResource;
 import pt.unl.fct.di.apdc.geo5.util.Access;
@@ -160,6 +164,94 @@ public class CommunityModeratorResource {
 				txn.rollback();
 			}
 		}
+	}
+	
+	@POST
+	@Path("/makeRouteCommentInactive/{commentID}")
+	public Response makeRouteCommentInactive(@PathParam("commentID") String commentID, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.info("Attempting to make inactive route comment: " + commentID);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_MODERATOR_MAKE_COMMENT_ROUTE_INACTIVE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		Transaction txn = datastore.newTransaction();
+		try {
+			Key commentKey = datastore.newKeyFactory().setKind("RouteComment").newKey(commentID);
+			if (txn.get(commentKey) == null) {
+				LOG.warning("Failed update attempt for id: " + commentID);
+				return Response.status(Status.FORBIDDEN).build();
+			}
+			Entity comment = datastore.get(commentKey);
+			comment = Entity.newBuilder(commentKey)
+					.set("routeID", comment.getString("routeID"))
+					.set("comment_user", comment.getString("comment_user"))
+					.set("comment_content", comment.getString("comment_content"))
+					.set("comment_add_date", comment.getTimestamp("comment_add_date"))
+					.set("active_comment", false)
+					.build();
+			txn.update(comment);
+			LOG.info("Comment made inactive: " + commentID);
+			txn.commit();
+			return Response.ok("{}").build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}	
+	}
+	
+	@POST
+	@Path("/makeGeoSpotCommentInactive/{commentID}")
+	public Response makeGeoSpotCommentInactive(@PathParam("commentID") String commentID, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.info("Attempting to make inactive GeoSpot comment: " + commentID);
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_MODERATOR_MAKE_COMMENT_GEOSPOT_INACTIVE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		Transaction txn = datastore.newTransaction();
+		try {
+			Key commentKey = datastore.newKeyFactory().setKind("GeoSpotComment").newKey(commentID);
+			if (txn.get(commentKey) == null) {
+				LOG.warning("Failed update attempt for id: " + commentID);
+				return Response.status(Status.FORBIDDEN).build();
+			}
+			Entity comment = datastore.get(commentKey);
+			comment = Entity.newBuilder(commentKey)
+					.set("geoSpot_name", comment.getString("geoSpot_name"))
+					.set("comment_user", comment.getString("comment_user"))
+					.set("comment_content", comment.getString("comment_content"))
+					.set("comment_add_date", comment.getTimestamp("comment_add_date"))
+					.set("active_comment", false)
+					.build();
+			txn.update(comment);
+			LOG.info("Comment made inactive: " + commentID);
+			txn.commit();
+			return Response.ok("{}").build();
+		} catch (Exception e) {
+			txn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (txn.isActive()) {
+				txn.rollback();
+			}
+		}	
 	}
 }
 	

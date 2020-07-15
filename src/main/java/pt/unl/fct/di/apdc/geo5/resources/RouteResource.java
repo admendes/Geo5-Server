@@ -434,9 +434,9 @@ public class RouteResource {
 				.setFilter(PropertyFilter.eq("routeID", routeID))
 				.build();
 		QueryResults<Entity> logs = datastore.run(query);
-		List<Entity> routePictureList = new ArrayList<Entity>();
+		List<String> routePictureList = new ArrayList<String>();
 		logs.forEachRemaining(routePictureLog -> {
-			routePictureList.add(routePictureLog);
+			routePictureList.add(routePictureLog.getString("file_name"));
 		});
 		LOG.info("User: " + data.username + " Got route pictures for id: " + routeID);
 		return Response.ok(g.toJson(routePictureList)).build();

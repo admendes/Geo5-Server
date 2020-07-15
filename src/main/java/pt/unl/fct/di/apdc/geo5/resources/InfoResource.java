@@ -153,9 +153,9 @@ public class InfoResource {
 				.setFilter(PropertyFilter.eq("info_name", infoName))
 				.build();
 		QueryResults<Entity> logs = datastore.run(query);
-		List<Entity> infoPictureList = new ArrayList<Entity>();
+		List<String> infoPictureList = new ArrayList<String>();
 		logs.forEachRemaining(infoPictureLog -> {
-			infoPictureList.add(infoPictureLog);
+			infoPictureList.add(infoPictureLog.getString("file_name"));
 		});
 		LOG.info("User: " + data.username + " Got Info pictures for id: " + infoName);
 		return Response.ok(g.toJson(infoPictureList)).build();
