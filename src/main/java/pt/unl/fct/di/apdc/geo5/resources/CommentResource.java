@@ -160,7 +160,7 @@ public class CommentResource {
 		logs.forEachRemaining(activeCommentLog -> {
 			CommentRouteData comment;
 			comment = new CommentRouteData(
-					activeCommentLog.getKey().getName().toString(),
+					activeCommentLog.getKey().getId().toString(),
 					activeCommentLog.getString("comment_user"),
 					activeCommentLog.getString("routeID"),
 					activeCommentLog.getString("comment_content")
@@ -196,7 +196,7 @@ public class CommentResource {
 		logs.forEachRemaining(activeCommentLog -> {
 			CommentGeoSpotData comment;
 			comment = new CommentGeoSpotData(
-					activeCommentLog.getKey().getName().toString(),
+					activeCommentLog.getKey().getId().toString(),
 					activeCommentLog.getString("comment_user"),
 					activeCommentLog.getString("geoSpot_name"),
 					activeCommentLog.getString("comment_content")
@@ -237,7 +237,7 @@ public class CommentResource {
 		logs.forEachRemaining(activeCommentLog -> {
 			CommentRouteData comment;
 			comment = new CommentRouteData(
-					activeCommentLog.getKey().getName().toString(),
+					activeCommentLog.getKey().getId().toString(),
 					activeCommentLog.getString("comment_user"),
 					activeCommentLog.getString("routeID"),
 					activeCommentLog.getString("comment_content")
@@ -278,7 +278,7 @@ public class CommentResource {
 		logs.forEachRemaining(activeCommentLog -> {
 			CommentGeoSpotData comment;
 			comment = new CommentGeoSpotData(
-					activeCommentLog.getKey().getName().toString(),
+					activeCommentLog.getKey().getId().toString(),
 					activeCommentLog.getString("comment_user"),
 					activeCommentLog.getString("geoSpot_name"),
 					activeCommentLog.getString("comment_content")

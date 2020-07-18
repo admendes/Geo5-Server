@@ -1,14 +1,14 @@
 package pt.unl.fct.di.apdc.geo5.data;
 
-public class SearchRouteData {
+public class SearchData {
 
 	public String search;
 	
-	public SearchRouteData() {
+	public SearchData() {
 		
 	}
 	
-	public SearchRouteData(String search) {
+	public SearchData(String search) {
 		this.search = search.toLowerCase();
 	}
 }

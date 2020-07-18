@@ -3,6 +3,7 @@ package pt.unl.fct.di.apdc.geo5.resources;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -31,10 +32,12 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.QuestionData;
 import pt.unl.fct.di.apdc.geo5.data.QuizzData;
+import pt.unl.fct.di.apdc.geo5.data.SearchData;
 import pt.unl.fct.di.apdc.geo5.util.Access;
 import pt.unl.fct.di.apdc.geo5.util.AccessMap;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
 import pt.unl.fct.di.apdc.geo5.util.Logs;
+import pt.unl.fct.di.apdc.geo5.util.Search;
 
 @Path("/quizz")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -165,5 +168,47 @@ public class QuizzResource {
 		});
 		LOG.info("Got list of active quizzes");
 		return Response.ok(g.toJson(activeQuizzes)).build();
+	}
+	
+	@POST
+	@Path("/getRandom")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response searchActiveRoutes(SearchData searchData, @Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to get random quizz by tag");
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_QUIZZ_GET_RANDOM, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		String[] splitStr = searchData.search.trim().split("\\s+");
+		Query<Entity> query = Query.newEntityQueryBuilder()
+			    .setKind("Quizz")
+				.setFilter(PropertyFilter.eq("active_quizz", true))
+			    .build();
+		QueryResults<Entity> logs = datastore.run(query);
+		List<QuizzData> searchResults = new ArrayList<QuizzData>();
+		logs.forEachRemaining(searchResultsLog -> {
+			if (Search.containsWords(searchResultsLog.getString("quizz_keywords").toLowerCase(), splitStr)) {
+				QuizzData quizz;
+				quizz = new QuizzData(
+						searchResultsLog.getKey().getName().toString(),
+						searchResultsLog.getString("quizz_description"),
+						searchResultsLog.getString("quizz_keywords"),
+						getQuestions(searchResultsLog.getKey().getName().toString())
+						);
+				searchResults.add(quizz);
+			}
+		});
+		if(searchResults.isEmpty())
+			return Response.ok("{}").build();
+		Random rand = new Random();
+	    QuizzData randomElement = searchResults.get(rand.nextInt(searchResults.size()));
+		LOG.info("Got random quizz");
+		return Response.ok(g.toJson(randomElement)).build();
 	}
 }

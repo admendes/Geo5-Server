@@ -48,6 +48,7 @@ public class Access {
 	
 	public static final String PERMISSION_QUIZZ_SUBMIT = "/quizz/sumbit";
 	public static final String PERMISSION_QUIZZ_LIST_ACTIVE = "/quizz/listActive";
+	public static final String PERMISSION_QUIZZ_GET_RANDOM = "/quizz/getRandom";
 	
 	public static final String PERMISSION_INFO_SUBMIT = "/info/sumbit";
 	public static final String PERMISSION_INFO_LIST_ACTIVE = "/info/listActive";

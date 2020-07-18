@@ -53,6 +53,7 @@ public class AccessMap {
         userAccess.add(Access.PERMISSION_COMMENT_GEOSPOT_ADD);
         userAccess.add(Access.PERMISSION_COMMENT_ROUTE_GET);
         userAccess.add(Access.PERMISSION_COMMENT_GEOSPOT_GET);
+        userAccess.add(Access.PERMISSION_QUIZZ_GET_RANDOM);
 
         //BOP
         Set<String> modAccess = new HashSet<String>();

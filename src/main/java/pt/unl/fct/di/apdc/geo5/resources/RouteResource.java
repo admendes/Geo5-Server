@@ -33,7 +33,7 @@ import com.google.gson.Gson;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.PointerData;
-import pt.unl.fct.di.apdc.geo5.data.SearchRouteData;
+import pt.unl.fct.di.apdc.geo5.data.SearchData;
 import pt.unl.fct.di.apdc.geo5.data.AddRouteData;
 import pt.unl.fct.di.apdc.geo5.util.Access;
 import pt.unl.fct.di.apdc.geo5.util.AccessMap;
@@ -299,7 +299,7 @@ public class RouteResource {
 	@POST
 	@Path("/searchActive")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response searchActiveRoutes(SearchRouteData searchData, @Context HttpHeaders headers) {
+	public Response searchActiveRoutes(SearchData searchData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to list search of active routes");
@@ -358,7 +358,7 @@ public class RouteResource {
 	@POST
 	@Path("/searchUser")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response searchUserRoutes(SearchRouteData searchData, @Context HttpHeaders headers) {
+	public Response searchUserRoutes(SearchData searchData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to list search of user routes");
