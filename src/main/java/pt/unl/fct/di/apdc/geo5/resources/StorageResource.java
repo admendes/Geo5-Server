@@ -87,20 +87,32 @@ public class StorageResource {
 		String filename = UUID.randomUUID().toString();
 		Transaction txn = datastore.newTransaction();
 		try {
-			m.doPost(req, resp, filename);
-			Key pictureKey = datastore.newKeyFactory()
-					.setKind("UserProfilePicture")
-					.newKey(data.username);
-			Entity fileUpload = datastore.get(pictureKey);
-			fileUpload = Entity.newBuilder(pictureKey)
-					.set("file_name", filename)
-					.set("file_type", req.getContentType())
-					.set("file_upload_date", Timestamp.now())
-					.build();
-			txn.add(fileUpload);
-			LOG.info("Uploaded user picture successfully: " + data.username);
-			txn.commit();
-			return Response.ok("{}").build();
+			Key pictureKey = datastore.newKeyFactory().setKind("UserProfilePicture").newKey(data.username);
+			Entity picture = datastore.get(pictureKey);		
+			if (picture == null) {
+				m.doPost(req, resp, filename);
+				picture = Entity.newBuilder(pictureKey)
+						.set("file_name", filename)
+						.set("file_type", req.getContentType())
+						.set("file_upload_date", Timestamp.now())
+						.build();
+				txn.add(picture);
+				LOG.info("Uploaded user picture successfully: " + data.username);
+				txn.commit();
+				return Response.ok("{}").build();
+			}
+			else {
+				m.doPost(req, resp, filename);
+				picture = Entity.newBuilder(pictureKey)
+						.set("file_name", filename)
+						.set("file_type", req.getContentType())
+						.set("file_upload_date", Timestamp.now())
+						.build();
+				txn.update(picture);
+				LOG.info("Uploaded user picture successfully: " + data.username);
+				txn.commit();
+				return Response.ok("{}").build();
+			}
 		} catch (Exception e) {
 			txn.rollback();
 			LOG.severe(e.getMessage());
