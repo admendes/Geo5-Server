@@ -49,7 +49,7 @@ public class QuizzResource {
 	
 	private final Gson g = new Gson();
 
-	QuizzResource() { }
+	public QuizzResource() { }
 	
 	@POST
 	@Path("/submit")

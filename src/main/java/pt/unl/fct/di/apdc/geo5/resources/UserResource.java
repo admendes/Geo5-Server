@@ -314,4 +314,65 @@ public class UserResource {
 		}
 	}
 
+	@POST
+	@Path("/listAllUsers")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response listAllUsers(@Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to list active users");
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_USER_LIST_ACTIVE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		Query<Entity> query = Query.newEntityQueryBuilder()
+				.setKind("User")
+				.setFilter(PropertyFilter.eq("user_role", "User"))
+				.build();
+		QueryResults<Entity> logs = datastore.run(query);
+		List<Entity> activeUsersList = new ArrayList<Entity>();
+		logs.forEachRemaining(activeUsersLog -> {
+			activeUsersList.add(activeUsersLog);
+		});
+		LOG.info("Got list of active users");
+		return Response.ok(g.toJson(activeUsersList)).build();
+	}
+	
+	@POST
+	@Path("/listAllAdmins")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response listAllAdmins(@Context HttpHeaders headers) {
+		Jwt j = new Jwt();
+		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
+		LOG.fine("Attempt to list active users");
+		if (!j.validToken(headers.getHeaderString("token"))) {
+			LOG.warning("Invalid token for username: " + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_USER_LIST_ACTIVE, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
+		}
+		Query<Entity> query = Query.newEntityQueryBuilder()
+				.setKind("User")
+				.setFilter(CompositeFilter.and(
+						PropertyFilter.eq("user_role", "SU"),
+						PropertyFilter.eq("user_role", "BOM"),
+						PropertyFilter.eq("user_role", "BOP")
+						))
+				.build();
+		QueryResults<Entity> logs = datastore.run(query);
+		List<Entity> activeUsersList = new ArrayList<Entity>();
+		logs.forEachRemaining(activeUsersLog -> {
+			activeUsersList.add(activeUsersLog);
+		});
+		LOG.info("Got list of active users");
+		return Response.ok(g.toJson(activeUsersList)).build();
+	}
+	
+	
 }

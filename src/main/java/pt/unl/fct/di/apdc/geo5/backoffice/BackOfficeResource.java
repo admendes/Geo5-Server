@@ -1,5 +1,7 @@
 package pt.unl.fct.di.apdc.geo5.backoffice;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -19,7 +21,12 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.Transaction;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
+import com.google.gson.Gson;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.RegisterBackOfficeData;
@@ -40,6 +47,8 @@ public class BackOfficeResource {
 	// Instantiates a client
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
+	private final Gson g = new Gson();
+	
 	public BackOfficeResource() { }
 	
 	@POST
@@ -200,4 +209,5 @@ public class BackOfficeResource {
 			}
 		}
 	}
+	
 }
