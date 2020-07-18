@@ -4,3 +4,10 @@ indexes:
   ancestor: yes
   properties:
   - name: user_login_time
+  
+- kind: GeoSpotComment
+  properties:
+  - name: active_comment
+  - name: geoSpot_name
+  - name: comment_add_date
+    direction: desc

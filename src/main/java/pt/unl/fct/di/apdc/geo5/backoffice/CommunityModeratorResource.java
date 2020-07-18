@@ -13,8 +13,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -23,7 +21,6 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Transaction;
 
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
-import pt.unl.fct.di.apdc.geo5.data.CommentRouteData;
 import pt.unl.fct.di.apdc.geo5.data.UserData;
 import pt.unl.fct.di.apdc.geo5.resources.LoginResource;
 import pt.unl.fct.di.apdc.geo5.util.Access;

@@ -35,6 +35,8 @@ public class Access {
 	public static final String PERMISSION_USER_LAST_24H_LOGINS = "/user/last24hlogins";
 	public static final String PERMISSION_USER_GET_USER_PICTURE = "/user/{username}/picture";
 	public static final String PERMISSION_USER_MAKE_ACCOUNT_INACTIVE = "/user/makeAccountInactive";
+	public static final String PERMISSION_USER_LIST_ALL_USERS = "/user/listAllUsers";
+	public static final String PERMISSION_USER_LIST_ALL_ADMINS = "/user/listAllAdmins";
 
 	public static final String PERMISSION_STORAGE_UPLOAD = "/storage/upload";
 	public static final String PERMISSION_STORAGE_UPLOAD_USER_PICTURE = "/storage/upload/user/{username}";

@@ -320,12 +320,12 @@ public class UserResource {
 	public Response listAllUsers(@Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
-		LOG.fine("Attempt to list active users");
+		LOG.fine("Attempt to list all users");
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
-		if (!AccessMap.hasAccess(Access.PERMISSION_USER_LIST_ACTIVE, data.username)) {
+		if (!AccessMap.hasAccess(Access.PERMISSION_USER_LIST_ALL_USERS, data.username)) {
 			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
@@ -338,7 +338,7 @@ public class UserResource {
 		logs.forEachRemaining(activeUsersLog -> {
 			activeUsersList.add(activeUsersLog);
 		});
-		LOG.info("Got list of active users");
+		LOG.info("Got list of all users");
 		return Response.ok(g.toJson(activeUsersList)).build();
 	}
 	
@@ -348,12 +348,12 @@ public class UserResource {
 	public Response listAllAdmins(@Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
-		LOG.fine("Attempt to list active users");
+		LOG.fine("Attempt to list admin users");
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
-		if (!AccessMap.hasAccess(Access.PERMISSION_USER_LIST_ACTIVE, data.username)) {
+		if (!AccessMap.hasAccess(Access.PERMISSION_USER_LIST_ALL_ADMINS, data.username)) {
 			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
@@ -370,7 +370,7 @@ public class UserResource {
 		logs.forEachRemaining(activeUsersLog -> {
 			activeUsersList.add(activeUsersLog);
 		});
-		LOG.info("Got list of active users");
+		LOG.info("Got list of admin users");
 		return Response.ok(g.toJson(activeUsersList)).build();
 	}
 	

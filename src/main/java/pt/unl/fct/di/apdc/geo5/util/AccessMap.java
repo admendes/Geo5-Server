@@ -83,6 +83,8 @@ public class AccessMap {
         gboAccess.add(Access.PERMISSION_COMMENT_LIST_ACTIVE_GEOSPOTS);
         gboAccess.add(Access.PERMISSION_MODERATOR_MAKE_COMMENT_ROUTE_INACTIVE);
         gboAccess.add(Access.PERMISSION_MODERATOR_MAKE_COMMENT_GEOSPOT_INACTIVE);
+        gboAccess.add(Access.PERMISSION_USER_LIST_ALL_USERS);
+        gboAccess.add(Access.PERMISSION_USER_LIST_ALL_ADMINS);
 
         //SU
         Set<String> suAccess = new HashSet<String>();
