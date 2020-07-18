@@ -54,6 +54,8 @@ public class AccessMap {
         userAccess.add(Access.PERMISSION_COMMENT_ROUTE_GET);
         userAccess.add(Access.PERMISSION_COMMENT_GEOSPOT_GET);
         userAccess.add(Access.PERMISSION_QUIZZ_GET_RANDOM);
+        userAccess.add(Access.PERMISSION_UPDATE_USER);
+        userAccess.add(Access.PERMISSION_UPDATE_USER_NOPASS);
 
         //BOP
         Set<String> modAccess = new HashSet<String>();
@@ -79,6 +81,7 @@ public class AccessMap {
         gboAccess.add(Access.PERMISSION_MODERATOR_MAKE_USER_ACTIVE);
         gboAccess.add(Access.PERMISSION_MODERATOR_MAKE_USER_INACTIVE);
         gboAccess.add(Access.PERMISSION_USER_LIST_ACTIVE);
+        gboAccess.add(Access.PERMISSION_USER_LIST_INACTIVE);
         gboAccess.add(Access.PERMISSION_USER_LAST_24H_LOGINS);
         gboAccess.add(Access.PERMISSION_COMMENT_LIST_ACTIVE_ROUTE);
         gboAccess.add(Access.PERMISSION_COMMENT_LIST_ACTIVE_GEOSPOTS);
@@ -96,6 +99,8 @@ public class AccessMap {
         suAccess.add(Access.PERMISSION_BACKOFFICE_ADD_BO);
         suAccess.add(Access.PERMISSION_BACKOFFICE_ADD_BOM);
         suAccess.add(Access.PERMISSION_BACKOFFICE_ADD_BOP);
+        suAccess.add(Access.PERMISSION_BACKOFFICE_LIST_ACTIVE_ADMINS);
+        suAccess.add(Access.PERMISSION_BACKOFFICE_UPDATE_ROLE);
 
         accessMap = Collections.unmodifiableMap(map);
 

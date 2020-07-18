@@ -24,7 +24,10 @@ import com.google.cloud.datastore.Transaction;
 import pt.unl.fct.di.apdc.geo5.data.AuthToken;
 import pt.unl.fct.di.apdc.geo5.data.UpdateUserData;
 import pt.unl.fct.di.apdc.geo5.data.UpdateUserDataNoPass;
+import pt.unl.fct.di.apdc.geo5.util.Access;
+import pt.unl.fct.di.apdc.geo5.util.AccessMap;
 import pt.unl.fct.di.apdc.geo5.util.Jwt;
+import pt.unl.fct.di.apdc.geo5.util.Logs;
 
 @Path("/update")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -48,6 +51,10 @@ public class UpdateResource {
 		}
 		if (!updateData.validRegistration()) {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_UPDATE_USER, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
@@ -100,6 +107,10 @@ public class UpdateResource {
 		}
 		if (!updateData.validRegistration()) {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+		if (!AccessMap.hasAccess(Access.PERMISSION_UPDATE_USER_NOPASS, data.username)) {
+			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
+			return Response.status(Status.FORBIDDEN).build();
 		}
 		Transaction txn = datastore.newTransaction();
 		try {

@@ -8,7 +8,9 @@ public class Access {
 	public static final String PERMISSION_BACKOFFICE_ADD_BO = "/backOffice/addBO";
 	public static final String PERMISSION_BACKOFFICE_ADD_BOM = "/backOffice/addBOM";
 	public static final String PERMISSION_BACKOFFICE_ADD_BOP = "/backOffice/addBOP";
-	
+	public static final String PERMISSION_BACKOFFICE_LIST_ACTIVE_ADMINS = "/backOffice/listActiveAdmins";
+	public static final String PERMISSION_BACKOFFICE_UPDATE_ROLE = "/backOffice/updateRole";
+
 	public static final String PERMISSION_MODERATOR_MAKE_USER_ACTIVE= "/communityModerator/makeUserActive";
 	public static final String PERMISSION_MODERATOR_MAKE_USER_INACTIVE = "/communityModerator/makeUserInactive";
 	public static final String PERMISSION_MODERATOR_MAKE_COMMENT_ROUTE_INACTIVE = "/makeRouteCommentInactive/{commentID}";
@@ -32,12 +34,16 @@ public class Access {
 	
 	public static final String PERMISSION_USER_GET = "/user/get";
 	public static final String PERMISSION_USER_LIST_ACTIVE = "/user/listActive";
+	public static final String PERMISSION_USER_LIST_INACTIVE = "/user/listInactive";
 	public static final String PERMISSION_USER_LAST_24H_LOGINS = "/user/last24hlogins";
 	public static final String PERMISSION_USER_GET_USER_PICTURE = "/user/{username}/picture";
 	public static final String PERMISSION_USER_MAKE_ACCOUNT_INACTIVE = "/user/makeAccountInactive";
 	public static final String PERMISSION_USER_LIST_ALL_USERS = "/user/listAllUsers";
 	public static final String PERMISSION_USER_LIST_ALL_ADMINS = "/user/listAllAdmins";
 
+	public static final String PERMISSION_UPDATE_USER = "/update";
+	public static final String PERMISSION_UPDATE_USER_NOPASS = "/update/v2";
+	
 	public static final String PERMISSION_STORAGE_UPLOAD = "/storage/upload";
 	public static final String PERMISSION_STORAGE_UPLOAD_USER_PICTURE = "/storage/upload/user/{username}";
 	public static final String PERMISSION_STORAGE_UPLOAD_ROUTE_PICTURE = "/storage/upload/route/{routeid}";
