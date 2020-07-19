@@ -10,4 +10,16 @@ indexes:
   - name: active_comment
   - name: geoSpot_name
   - name: comment_add_date
-    direction: desc
+    direction: asc
+    
+- kind: GeoSpotComment
+  properties:
+  - name: active_comment
+  - name: comment_add_date
+    direction: asc
+    
+- kind: RouteComment
+  properties:
+  - name: active_comment
+  - name: comment_add_date
+    direction: asc

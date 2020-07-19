@@ -152,7 +152,7 @@ public class CommentResource {
 		}
 		Query<Entity> query = Query.newEntityQueryBuilder()
 				.setKind("RouteComment")
-				.setOrderBy(OrderBy.desc("comment_add_date"))
+				.setOrderBy(OrderBy.asc("comment_add_date"))
 				.setFilter(PropertyFilter.eq("active_comment", true))
 				.build();
 		QueryResults<Entity> logs = datastore.run(query);
@@ -188,7 +188,7 @@ public class CommentResource {
 		}
 		Query<Entity> query = Query.newEntityQueryBuilder()
 				.setKind("GeoSpotComment")
-				.setOrderBy(OrderBy.desc("comment_add_date"))
+				.setOrderBy(OrderBy.asc("comment_add_date"))
 				.setFilter(PropertyFilter.eq("active_comment", true))
 				.build();
 		QueryResults<Entity> logs = datastore.run(query);
@@ -224,7 +224,7 @@ public class CommentResource {
 		}
 		Query<Entity> query = Query.newEntityQueryBuilder()
 				.setKind("RouteComment")
-				.setOrderBy(OrderBy.desc("comment_add_date"))
+				.setOrderBy(OrderBy.asc("comment_add_date"))
 				.setFilter(
 						CompositeFilter.and(
 								PropertyFilter.eq("routeID", routeID),
@@ -265,7 +265,7 @@ public class CommentResource {
 		}
 		Query<Entity> query = Query.newEntityQueryBuilder()
 				.setKind("GeoSpotComment")
-				.setOrderBy(OrderBy.desc("comment_add_date"))
+				.setOrderBy(OrderBy.asc("comment_add_date"))
 				.setFilter(
 						CompositeFilter.and(
 								PropertyFilter.eq("geoSpot_name", geoSpotName),
