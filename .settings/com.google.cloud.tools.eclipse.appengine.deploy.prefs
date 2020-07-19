@@ -1,11 +1,11 @@
 =\=\=\=\=\=\=
 <<<<<<<=HEAD
 >>>>>>>=6bc13a4657838215ec42f607a58b96b7ac5fa36d
-account.email=a.denisov@campus.fct.unl.pt
+account.email=ad.mendes@campus.fct.unl.pt
 eclipse.preferences.version=1
 include.optional.configuration.files=true
 project.bucket=
-project.id=apdc-geoproj
+project.id=brave-idea-270314
 project.previousVersion.stop=true
 project.promote=true
 project.version=quizze

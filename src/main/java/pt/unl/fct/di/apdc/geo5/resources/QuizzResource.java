@@ -173,7 +173,7 @@ public class QuizzResource {
 	@POST
 	@Path("/getRandom")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response searchActiveRoutes(SearchData searchData, @Context HttpHeaders headers) {
+	public Response getRandomQuizz(SearchData searchData, @Context HttpHeaders headers) {
 		Jwt j = new Jwt();
 		AuthToken data = j.getAuthToken(headers.getHeaderString("token"));
 		LOG.fine("Attempt to get random quizz by tag");
