@@ -39,7 +39,7 @@ public class CommunityModeratorResource {
 	// Instantiates a client
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
-	CommunityModeratorResource() { }
+	public CommunityModeratorResource() { }
 
 	@POST
 	@Path("/makeUserActive")

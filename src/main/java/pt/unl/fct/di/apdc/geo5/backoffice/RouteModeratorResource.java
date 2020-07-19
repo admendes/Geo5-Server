@@ -37,7 +37,7 @@ public class RouteModeratorResource {
 	// Instantiates a client
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
-	RouteModeratorResource() { }
+	public RouteModeratorResource() { }
 	
 	@POST
 	@Path("/makeRouteActive")

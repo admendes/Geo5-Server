@@ -43,6 +43,8 @@ public class DeleteResource {
 
 	private final Gson g = new Gson();
 
+	public DeleteResource() {}
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response doDelete(DeleteData deleteData, @Context HttpHeaders headers) {

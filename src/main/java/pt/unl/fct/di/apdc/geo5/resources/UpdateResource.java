@@ -38,7 +38,9 @@ public class UpdateResource {
 	 */
 	private static final Logger LOG = Logger.getLogger(LoginResource.class.getName());
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-	
+
+	public UpdateResource() {}
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response doUpdate(UpdateUserData updateData, @Context HttpHeaders headers) {
