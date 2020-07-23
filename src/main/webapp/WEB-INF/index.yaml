@@ -11,15 +11,34 @@ indexes:
   - name: geoSpot_name
   - name: comment_add_date
     direction: asc
+
+- kind: GeoSpotComment
+  properties:
+  - name: geoSpot_name
+  - name: comment_add_date
+    direction: asc
     
 - kind: GeoSpotComment
   properties:
   - name: active_comment
   - name: comment_add_date
     direction: asc
-    
+ 
 - kind: RouteComment
   properties:
   - name: active_comment
+  - name: routeID
+  - name: comment_add_date
+    direction: asc
+
+- kind: RouteComment
+  properties:
+  - name: active_comment
+  - name: comment_add_date
+    direction: asc
+
+- kind: RouteComment
+  properties:
+  - name: routeID
   - name: comment_add_date
     direction: asc
