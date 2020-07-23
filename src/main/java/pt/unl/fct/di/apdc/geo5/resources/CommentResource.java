@@ -2,6 +2,7 @@ package pt.unl.fct.di.apdc.geo5.resources;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,9 +68,8 @@ public class CommentResource {
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
-			Key commentKey = datastore.allocateId(
-					datastore.newKeyFactory()
-					.setKind("RouteComment").newKey());
+			String uniqueID = UUID.randomUUID().toString();
+			Key commentKey = datastore.newKeyFactory().setKind("RouteComment").newKey(uniqueID);
 			Entity comment = datastore.get(commentKey);
 			comment = Entity.newBuilder(commentKey)
 					.set("routeID", commentData.routeID)
@@ -109,9 +109,8 @@ public class CommentResource {
 		}
 		Transaction txn = datastore.newTransaction();
 		try {
-			Key commentKey = datastore.allocateId(
-					datastore.newKeyFactory()
-					.setKind("GeoSpotComment").newKey());
+			String uniqueID = UUID.randomUUID().toString();
+			Key commentKey = datastore.newKeyFactory().setKind("GeoSpotComment").newKey(uniqueID);
 			Entity comment = datastore.get(commentKey);
 			comment = Entity.newBuilder(commentKey)
 					.set("geoSpot_name", commentData.geoSpotName)
@@ -160,7 +159,7 @@ public class CommentResource {
 		logs.forEachRemaining(activeCommentLog -> {
 			CommentRouteData comment;
 			comment = new CommentRouteData(
-					activeCommentLog.getKey().getId().toString(),
+					activeCommentLog.getKey().getName().toString(),
 					activeCommentLog.getString("comment_user"),
 					activeCommentLog.getString("routeID"),
 					activeCommentLog.getString("comment_content")
@@ -196,7 +195,7 @@ public class CommentResource {
 		logs.forEachRemaining(activeCommentLog -> {
 			CommentGeoSpotData comment;
 			comment = new CommentGeoSpotData(
-					activeCommentLog.getKey().getId().toString(),
+					activeCommentLog.getKey().getName().toString(),
 					activeCommentLog.getString("comment_user"),
 					activeCommentLog.getString("geoSpot_name"),
 					activeCommentLog.getString("comment_content")
@@ -237,7 +236,7 @@ public class CommentResource {
 		logs.forEachRemaining(activeCommentLog -> {
 			CommentRouteData comment;
 			comment = new CommentRouteData(
-					activeCommentLog.getKey().getId().toString(),
+					activeCommentLog.getKey().getName().toString(),
 					activeCommentLog.getString("comment_user"),
 					activeCommentLog.getString("routeID"),
 					activeCommentLog.getString("comment_content")
@@ -278,7 +277,7 @@ public class CommentResource {
 		logs.forEachRemaining(activeCommentLog -> {
 			CommentGeoSpotData comment;
 			comment = new CommentGeoSpotData(
-					activeCommentLog.getKey().getId().toString(),
+					activeCommentLog.getKey().getName().toString(),
 					activeCommentLog.getString("comment_user"),
 					activeCommentLog.getString("geoSpot_name"),
 					activeCommentLog.getString("comment_content")

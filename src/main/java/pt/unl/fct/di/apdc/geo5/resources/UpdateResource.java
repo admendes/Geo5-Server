@@ -51,9 +51,10 @@ public class UpdateResource {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
 		}
+		/**
 		if (!updateData.validRegistration()) {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-		}
+		}**/
 		if (!AccessMap.hasAccess(Access.PERMISSION_UPDATE_USER, data.username)) {
 			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
@@ -106,10 +107,10 @@ public class UpdateResource {
 		if (!j.validToken(headers.getHeaderString("token"))) {
 			LOG.warning("Invalid token for username: " + data.username);
 			return Response.status(Status.FORBIDDEN).build();
-		}
+		}/**
 		if (!updateData.validRegistration()) {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-		}
+		}**/
 		if (!AccessMap.hasAccess(Access.PERMISSION_UPDATE_USER_NOPASS, data.username)) {
 			LOG.warning(Logs.LOG_INSUFFICIENT_PERMISSIONS + data.username);
 			return Response.status(Status.FORBIDDEN).build();
